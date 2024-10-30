@@ -1,6 +1,16 @@
 import os
+import base64
 import logging
-from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
+from flask import (
+    Flask,
+    render_template,
+    request,
+    flash,
+    url_for,
+    redirect,
+    session,
+    jsonify,
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
 import smtplib
@@ -10,56 +20,92 @@ from datetime import datetime, timezone, timedelta
 import redis
 import uuid
 import json
-from flask_mysqldb import MySQL
+
+ffrom
+flask_mysqldb
+import MySQL
+from mysql.connector import pooling
 from mysql.connector import Error as MySQLError
+from cryptography.fernet import Fernet
+from flask_wtf import CSRFProtect
+
+# 导入配置类
+from config import Config
 
 # 配置日志记录
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logging.getLogger().setLevel(logging.DEBUG)
+session["verification_time"] = datetime.now(timezone.utc)
 app = Flask(__name__)
-app.config.from_object("config.Config")
+
+# 应用配置
+app.config.from_object(Config)
+
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SECURE_PROXY_SSL_HEADER"] = ("HTTP_X_FORWARDED_PROTO", "https")
+csrf = CSRFProtect(app)
+
+mysql_pool = pooling.MySQLConnectionPool(
+    pool_name="mypool",
+    pool_size=5,
+    host=app.config["MYSQL_HOST"],
+    user=app.config["MYSQL_USER"],
+    password=app.config["MYSQL_PASSWORD"],
+    database=app.config["MYSQL_DB"]
+)
+
 
 def get_db_connection():
-   try:
-       conn = mysql.connection
-       return conn
-   except MySQLError as e:
-       logging.error(f"数据库连接失败: {e}")
-       return None
-   
-app.config.from_object("config.Config")
+    try:
+        conn = mysql_pool.get_connection()
+        return conn
+    except MySQLError as e:
+        logging.error(f"数据库连接失败: {e}")
+        return None
+
+
 mysql = MySQL(app)
-redis_client = redis.StrictRedis(host="localhost", port=6379, db=0)
+redis_client = redis.StrictRedis.from_url(app.config["REDIS_URL"])
+
+encryption_key = os.getenv("ENCRYPTION_KEY", Fernet.generate_key().decode())
+cipher_suite = Fernet(encryption_key)
 
 
-@app.before_request
-def before_request():
-    session_id = session.get("session_id")
-    if not session_id:
-        # 生成一个新的session_id，并设置到cookie中
-        session_id = str(uuid.uuid4())
-        session["session_id"] = session_id
-        # 在Redis中存储一个空会话
-        redis_client.set(session_id, "{}")
-    else:
-        # 从Redis加载会话数据
-        session_data = redis_client.get(session_id)
-        if session_data:
-            session.update(json.loads(session_data))
+def encrypt_data(data):
+    return cipher_suite.encrypt(data.encode())
+
+
+def decrypt_data(data):
+    return cipher_suite.decrypt(data).decode()
 
 
 @app.after_request
 def after_request(response):
     session_id = session.get("session_id")
     if session_id:
-        # 序列化session字典，并存储到Redis中
-        # 检查session中的每个值，如果是datetime对象，则转换为ISO 8601格式的字符串
         session_data = {
             key: value.isoformat() if isinstance(value, datetime) else value
             for key, value in session.items()
         }
-        redis_client.set(session_id, json.dumps(session_data))
+        encrypted_data = encrypt_data(json.dumps(session_data))
+        redis_client.set(session_id, encrypted_data)
     return response
+
+
+@app.before_request
+def before_request():
+    session_id = session.get("session_id")
+    if not session_id:
+        session_id = str(uuid.uuid4())
+        session["session_id"] = session_id
+        redis_client.set(session_id, encrypt_data("{}"))
+    else:
+        encrypted_data = redis_client.get(session_id)
+        if encrypted_data:
+            session_data = decrypt_data(encrypted_data)
+            session.update(json.loads(session_data))
 
 
 @app.route("/set_session_value")
@@ -76,7 +122,7 @@ def get_session_value():
 def generate_verification_code():
     return "".join([str(random.randint(0, 9)) for _ in range(6)])
 
-app.config['VERIFICATION_CODE_EXPIRATION'] = int(os.getenv('VERIFICATION_CODE_EXPIRATION', 600))
+
 nickname = "智慧教育平台"
 email_address = "206284929@qq.com"
 
@@ -86,20 +132,18 @@ encoded_nickname = base64.b64encode(nickname.encode("utf-8")).decode("utf-8")
 # 构建完整的'From'头信息
 from_header = f"=?utf-8?B?{encoded_nickname}=?= <{email_address}>"
 
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
-    minutes=30
-)  # 设置会话有效期为30分钟
-
 
 # 发送邮件的函数
 def send_verification_email(email, verification_code):
-    smtp_server = "smtp.qq.com"
-    smtp_user = "206284929@qq.com"
-    smtp_password = "ztznowgbfxxnbiei"  # 这是授权码
+    smtp_server = app.config["SMTP_SERVER"]
+    smtp_user = app.config["SMTP_USER"]
+    smtp_password = app.config["SMTP_PASSWORD"]
+    email_template = """
+    您的验证码是：{verification_code}。
+    有效期为十分钟，请勿向他人泄露。
+    """
     msg = MIMEText(
-        f"您的验证码是：{verification_code}。有效期为十分钟，请勿向他人泄露。",
-        "plain",
-        "utf-8",
+        email_template.format(verification_code=verification_code), "plain", "utf-8"
     )
     msg["From"] = from_header
     msg["To"] = Header(email, "utf-8")
@@ -109,33 +153,12 @@ def send_verification_email(email, verification_code):
         server.login(smtp_user, smtp_password)
         server.sendmail(smtp_user, email, msg.as_string())
         server.quit()
-        # 记录验证码和时间到会话中
         session["verification_code"] = verification_code
-        session["verification_time"] = datetime.now()  # 记录当前时间
+        session["verification_time"] = datetime.now(timezone.utc)
         return True
     except Exception as e:
-        print(f"邮件发送失败: {e}")
+        logging.error(f"邮件发送失败: {e}")
         return False
-
-
-
-def init_db():
-   create_users_sql = """
-     CREATE TABLE IF NOT EXISTS students (
-         username VARCHAR(255) NOT NULL,
-        passwd VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
-        PRIMARY KEY (username)
-     );
- """
-   with get_db_connection() as conn:
-       if conn is not None:
-           try:
-               cursor = conn.cursor()
-               cursor.execute(create_users_sql)
-               conn.commit()
-           except MySQLError as e:
-               logging.error(f"创建表失败: {e}")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -156,13 +179,13 @@ def register():
                 hashed_passwd = generate_password_hash(passwd)
                 cursor.execute(
                     """
-                  INSERT INTO students (username, passwd, email) VALUES (%s,%s,%s)
+                  INSERT INTO users (username, passwd, email) VALUES (%s,%s,%s)
               """,
                     (username, hashed_passwd, email),
                 )
                 conn.commit()
                 return redirect(url_for("register_success"))
-        except Exception as e:
+        except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("register.html")
 
@@ -183,7 +206,7 @@ def login():
                     return render_template("index.html", username=username)
                 else:
                     flash("用户名或密码错误，请检查后重新输入!", "danger")
-        except Exception as e:
+        except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("login.html")
 
@@ -200,7 +223,7 @@ def index():
                     (session["username"],),
                 )
                 user = cursor.fetchone()
-        except Exception as e:
+        except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("login"))
 
@@ -217,7 +240,7 @@ def forget_password():
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT * FROM students WHERE username=%s AND email=%s",
+                "SELECT * FROM users WHERE username=%s AND email=%s",
                 (username, email),
             )
             user = cursor.fetchone()
@@ -230,7 +253,7 @@ def forget_password():
                     flash("验证码发送失败，请稍后再试。", "danger")
             else:
                 flash("该用户名或邮箱错误！请检查后重新填写。", "danger")
-        except Exception as e:
+        except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("forget_password.html")
 
@@ -263,7 +286,6 @@ def verify_code():
                 flash("验证码错误，请重新输入。", "danger")
         else:
             flash("验证码无效，请重新获取。", "danger")
-
     return render_template("verify_code_input.html")
 
 
@@ -291,7 +313,26 @@ def reset_password():
                     (hashed_password, username),
                 )
                 conn.commit()
-            except Exception as e:
+            except MySQLError as e:
                 flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-            return redirect(url_for("reset_password_success"))
+            return redirect(url_for("index"))
     return render_template("reset_password.html")
+
+
+@app.route("/recommendations")
+def recommendations():
+    user_id = session.get("user_id")
+    if user_id:
+        recommended_items = recommend(user_id, item_similarity, user_ratings)
+        return render_template(
+            "recommendations.html", recommended_items=recommended_items
+        )
+    else:
+        return redirect(url_for("login"))
+
+
+if __name__ == "__main__":
+    # 初始化数据库
+    init_db()
+    # 启动应用
+    app.run(debug=True)
