@@ -1,0 +1,63 @@
+body {
+    display: flex;
+    justify-content: center;
+    /* 水平居中 */
+    align-items: center;
+    /* 垂直居中 */
+    height: 100vh;
+    /* 视口高度 */
+    margin: 0;
+    /* 去除默认边距 */
+     background-image: url("forgetback.jpg");
+     background-repeat: no-repeat;/*确保背景图像不重复。*/
+     overflow: hidden;/*隐藏溢出容器边界的任何内容。*/
+     background-position: center; /* 背景图像中心对齐 */
+     background-size:cover;/*缩放背景图像以覆盖整个背景区域，必要时进行裁剪。*/
+}
+
+.container1 {
+    background-color: rgba(250, 250, 250, 0.5);
+    margin: 20% auto;
+    width: 500px;
+    height: 325px;
+    margin-top: 285px;
+    border-radius: 5px;
+    display: block;
+    box-shadow: 0 0 10px #333;
+    position: relative;
+}
+
+input {
+    width: 410px;
+    height: 35px;
+    padding: 10px; /* 内边距 */
+    border: 2px solid #007BFF; /* 边框颜色和厚度 */
+    border-radius: 5px; /* 圆角 */
+    font-size: 16px; /* 字体大小 */
+    color: #333; /* 文字颜色 */
+    transition: border-color 0.3s ease; /* 平滑过渡 */
+}
+
+input:focus {
+    border-color: #0056b3; /* 聚焦时的边框颜色 */
+    outline: none; /* 去除默认的轮廓 */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* 聚焦时的阴影效果 */
+}
+
+button:hover {
+    background-color: #0056b3;
+    /* 悬停时背景颜色 */
+    border-color: #0056b3;
+    /* 悬停时边框颜色 */
+}
+
+button {
+    background-color: #007BFF;
+    /* 或其他颜色 */
+    color: white;
+    /* 文字颜色 */
+    border: 1px solid #007BFF;
+    /* 边框 */
+    cursor: pointer;
+    /* 鼠标悬停时显示为手形 */
+} 
