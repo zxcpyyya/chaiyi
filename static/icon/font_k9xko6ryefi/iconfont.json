@@ -1,0 +1,16 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "35070291",
+      "name": "资源 13s",
+      "font_class": "a-ziyuan13s",
+      "unicode": "e663",
+      "unicode_decimal": 58979
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+.slides-right{
+    background-color: #c7c8cf;
+    width: 240px;
+    height: 384px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border-radius: 20px; 
+}
+/* 用户处 */
+.user{
+    display: flex;/*有了这个就可以控制盒子的布局方式，下面两个就是*/
+    align-items: center;
+     height: 84px;
+  
+}
+.user-image{
+    position: relative;
+    left: 18px;
+    height: 65px;
+    width: 65px;
+    background-color: yellow;
+    border-radius: 50%;
+}
+.user-Inf{
+    position: relative;
+    left: 30px;
+}
+
+/* 中间部分 */
+.center-bank1,.center-bank2,.slidesright-buttom{
+    height: 95px;
+    width: 240px;
+    display: flex;/*有了这个就可以控制盒子的布局方式，下面两个就是*/
+    justify-content: space-evenly;/*使盒子与盒子之间相同间隔排列*/
+}
+
+.center-bank1 .iconfont{
+position: relative;
+top: 12px;
+font-size: 30px;
+}
+
+/* 轮播图右边第二行内容 */
+
+.collect,
+.love,
+.self-info{
+    display: block;
+    text-align: center;
+    width: 60px;
+    height: 84px;
+    font-size: 12px;
+   
+    border-radius: .4rem; 
+}
+.center-bank1  .tubiao{
+    position: relative;
+    top: 25px;
+}
+
+
+.center-bank2 .iconfont{
+    position: relative;  
+    font-size: 30px;
+    }
+.center-bank2 .tubiao{
+    position: relative;
+    top: 10px;
+}
+
+.havesaw,
+.newest,.AI,.map{  
+    display: block;
+    text-align: center;
+    width: 104px;
+    height: 84px;
+    border-radius: .4rem; 
+}
+
+.slidesright-buttom .iconfont{
+    position: relative;  
+    font-size: 30px;
+    }
+    .slidesright-buttom   .tubiao{
+        position: relative;
+        top: 0px;
+    }
+
+.slidesright-buttom{
+    display: block;
+    text-align: center;
+    width: 100%;
+    height:100px;
+    display: flex;/*有了这个就可以控制盒子的布局方式，下面两个就是*/
+    justify-content: space-evenly;/*使盒子与盒子之间相同间隔排列*/
+    align-items: center;
+}
+
+
+/* 设置滑到时候的颜色变化效果 */
+.AI:hover,.map:hover,
+.collect:hover,
+.love:hover,
+.self-info:hover,
+.havesaw:hover,
+.newest:hover{
+    color: red;
+}
+
+.icon-ditu-map,.icon-wuguan{
+    font-size: 30px;
+}
+
+.AI .iconfont {
+    font-size: 30px; /* 设置图标的大小 */
+    /* 你还可以添加其他样式，如颜色、边距等 */
+    color: #333; /* 图标颜色 */
+}
+.map .iconfont {
+    font-size: 30px; /* 设置图标的大小 */
+    /* 你还可以添加其他样式，如颜色、边距等 */
+    color: #333; /* 图标颜色 */
+}
+.user-image {
+    overflow: hidden; /* 确保内容超出部分被隐藏 */
+    background-size: cover; /* 图片覆盖整个盒子 */
+}

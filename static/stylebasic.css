@@ -1,0 +1,111 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* 使宽高包含边框和内边距 */
+}
+body{  
+    margin: 0; /* 去掉默认的边距 */
+    height: 100vh; /* 设置高度为视口高度 */
+   background-color: #878282;
+   background-size: cover; /* 图片覆盖整个区域 */
+   background-position: center; /* 图片居中 */
+   
+}
+.container1{
+    display: flex; /* 使用 flexbox */
+    justify-content: center;
+    position: absolute;
+    top: 35px;
+    left: 3px;
+    height: 450px;
+    width: 100%;
+  
+}
+
+
+li {
+    /* 去除导航前面的点 */
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    /*  去除下划线 */
+    color: #000;
+}
+
+/* 顶部导航 */
+.windows-top1{
+    width: 100%;
+    height: 35px;
+    position: absolute; 
+    top: 0;
+    left: 3px;
+    text-align: right;
+    border-bottom: 2px solid rgb(0, 0, 0,0.1); /* 调整线条的宽度和颜色 */
+    padding: 10px; /* 适当的内边距 */
+    background-color:rgb(227, 228, 229);
+    
+}
+.windows-top1>a{
+    font-size: 0.8em;
+    text-decoration: none;
+    color: #000; 
+}
+
+/* 搜索部分 */
+.windows-search{
+    position: absolute; /* 或者使用 fixed */
+    height:100px;
+    width: 100%;
+
+    padding: 10px; /* 适当的内边距 */
+    display: flex; /* 使用 flexbox */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+   
+}
+/* 搜索框 */
+.search1{
+    position: absolute;
+    width: 700px;
+    height: 40px;
+    border:none;
+    padding-left: 10px; /* 左边距2px */
+    outline: none;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius:5px ;
+}
+/* 搜索键 */
+.search-btn{
+    position: absolute;
+    display: flex; /* 使用 flexbox */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    height: 40px;
+    width: 40px;
+    background-color: yellow;
+    margin-left:740px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+/* 滑动到一定程度后的搜索框 */
+
+.windows-search2 {
+    position: fixed;
+    top: 0;
+    height: 50px;
+    width: 100%;
+    background-color: #8888;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: scaleY(0);
+    /* 先隐藏 */
+    transform-origin: 50% 0;
+    /* 缩放中心 */
+    transition: transform 0.5s;
+    /* 设置过渡动画 */
+
+}
