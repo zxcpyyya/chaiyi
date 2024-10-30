@@ -1,6 +1,15 @@
 import os
 import logging
-from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
+from flask import (
+    Flask,
+    render_template,
+    request,
+    flash,
+    url_for,
+    redirect,
+    session,
+    jsonify,
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 import random
 import smtplib
@@ -14,19 +23,23 @@ from flask_mysqldb import MySQL
 from mysql.connector import Error as MySQLError
 
 # 配置日志记录
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 app = Flask(__name__)
 app.config.from_object("config.Config")
 
+
 def get_db_connection():
-   try:
-       conn = mysql.connection
-       return conn
-   except MySQLError as e:
-       logging.error(f"数据库连接失败: {e}")
-       return None
-   
+    try:
+        conn = mysql.connection
+        return conn
+    except MySQLError as e:
+        logging.error(f"数据库连接失败: {e}")
+        return None
+
+
 app.config.from_object("config.Config")
 mysql = MySQL(app)
 redis_client = redis.StrictRedis(host="localhost", port=6379, db=0)
@@ -76,7 +89,10 @@ def get_session_value():
 def generate_verification_code():
     return "".join([str(random.randint(0, 9)) for _ in range(6)])
 
-app.config['VERIFICATION_CODE_EXPIRATION'] = int(os.getenv('VERIFICATION_CODE_EXPIRATION', 600))
+
+app.config["VERIFICATION_CODE_EXPIRATION"] = int(
+    os.getenv("VERIFICATION_CODE_EXPIRATION", 600)
+)
 nickname = "智慧教育平台"
 email_address = "206284929@qq.com"
 
@@ -118,9 +134,8 @@ def send_verification_email(email, verification_code):
         return False
 
 
-
 def init_db():
-   create_users_sql = """
+    create_users_sql = """
      CREATE TABLE IF NOT EXISTS students (
          username VARCHAR(255) NOT NULL,
         passwd VARCHAR(255) NOT NULL,
@@ -128,14 +143,14 @@ def init_db():
         PRIMARY KEY (username)
      );
  """
-   with get_db_connection() as conn:
-       if conn is not None:
-           try:
-               cursor = conn.cursor()
-               cursor.execute(create_users_sql)
-               conn.commit()
-           except MySQLError as e:
-               logging.error(f"创建表失败: {e}")
+    with get_db_connection() as conn:
+        if conn is not None:
+            try:
+                cursor = conn.cursor()
+                cursor.execute(create_users_sql)
+                conn.commit()
+            except MySQLError as e:
+                logging.error(f"创建表失败: {e}")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -263,7 +278,6 @@ def verify_code():
                 flash("验证码错误，请重新输入。", "danger")
         else:
             flash("验证码无效，请重新获取。", "danger")
-
     return render_template("verify_code_input.html")
 
 
@@ -293,5 +307,21 @@ def reset_password():
                 conn.commit()
             except Exception as e:
                 flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-            return redirect(url_for("reset_password_success"))
+            return redirect(url_for("index"))
     return render_template("reset_password.html")
+
+@app.route('/recommendations')
+def recommendations():
+   user_id = session.get('user_id')
+   if user_id:
+       recommended_items = recommend(user_id, item_similarity, user_ratings)
+       return render_template('recommendations.html', recommended_items=recommended_items)
+   else:
+       return redirect(url_for('login'))
+   
+   
+if __name__ == "__main__":
+    # 初始化数据库
+    init_db()
+    # 启动应用
+    app.run(debug=True)
