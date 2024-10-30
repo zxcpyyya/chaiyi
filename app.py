@@ -113,7 +113,7 @@ def get_db_connection():
 
 
 def init_db():
-    create_students_sql = """
+    create_users_sql = """
       CREATE TABLE IF NOT EXISTS students (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL,
@@ -122,15 +122,7 @@ def init_db():
           email TEXT NOT NULL
       );
   """
-    create_courses_sql = """
-      CREATE TABLE IF NOT EXISTS courses (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          description TEXT NOT NULL,
-          difficulty TEXT NOT NULL,
-          video_url TEXT NOT NULL
-      );
-  """
+
     create_notifications_sql = """
       CREATE TABLE IF NOT EXISTS notifications (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -158,77 +150,20 @@ def init_db():
           FOREIGN KEY (discussion_id) REFERENCES discussions (id)
       );
   """
-    create_exams_sql = """
-           CREATE TABLE IF NOT EXISTS exams (
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               name TEXT NOT NULL,
-               description TEXT NOT NULL,
-               difficulty TEXT NOT NULL,
-               total_score INTEGER NOT NULL,
-               single_choice_count INTEGER NOT NULL,
-               fill_in_the_blank_count INTEGER NOT NULL,
-               exam_time INTEGER NOT NULL,
-               created_by TEXT NOT NULL,
-               timestamp DATETIME NOT NULL
-);
-       """
-    create_questions_sql = """
-           CREATE TABLE IF NOT EXISTS questions (
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               exam_id INTEGER NOT NULL,
-               question_text TEXT NOT NULL,
-               option_a TEXT,
-               option_b TEXT,
-               option_c TEXT,
-               option_d TEXT,
-               correct_answer TEXT,
-               question_type TEXT NOT NULL,
-               score INTEGER NOT NULL,
-               FOREIGN KEY (exam_id) REFERENCES exams (id)
-           );
-       """
-    create_answers_sql = """
-           CREATE TABLE IF NOT EXISTS answers (
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               student_id TEXT NOT NULL,
-               exam_id INTEGER NOT NULL,
-               question_id INTEGER NOT NULL,
-               selected_answer TEXT NOT NULL,
-               correct_answer TEXT,
-               score INTEGER NOT NULL,
-               FOREIGN KEY (student_id) REFERENCES students (student_id),
-               FOREIGN KEY (exam_id) REFERENCES exams (id),
-               FOREIGN KEY (correct_answer) REFERENCES questions (correct_answer),
-               FOREIGN KEY (question_id) REFERENCES questions (id)
-           );
-       """
+
 
     with get_db_connection() as conn:
         if conn is not None:
             try:
                 cursor = conn.cursor()
-                cursor.execute(create_students_sql)
-                cursor.execute(create_courses_sql)
+                cursor.execute(create_users_sql)
                 cursor.execute(create_notifications_sql)
                 cursor.execute(create_discussions_sql)
                 cursor.execute(create_replies_sql)
-                cursor.execute(create_exams_sql)
-                cursor.execute(create_questions_sql)
-                cursor.execute(create_answers_sql)
                 conn.commit()
             except sqlite3.Error as e:
                 print(f"创建表失败: {e}")
 
-
-def get_user_role(student_id):
-    if student_id == "2215304122":
-        return "admin"
-    elif student_id.startswith("11"):
-        return "teacher"
-    elif student_id.startswith("22"):
-        return "student"
-    else:
-        return "unknown"
 
 
 @app.route("/register", methods=["GET", "POST"])
