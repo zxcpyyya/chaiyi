@@ -115,51 +115,17 @@ def get_db_connection():
 def init_db():
     create_users_sql = """
       CREATE TABLE IF NOT EXISTS students (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          student_id TEXT NOT NULL,
-          password TEXT NOT NULL,
+          username TEXT NOT NULL,
+          passwd TEXT NOT NULL,
           email TEXT NOT NULL
       );
   """
-
-    create_notifications_sql = """
-      CREATE TABLE IF NOT EXISTS notifications (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT NOT NULL,
-          content TEXT NOT NULL,
-          timestamp DATETIME NOT NULL
-      );
-  """
-    create_discussions_sql = """
-      CREATE TABLE IF NOT EXISTS discussions (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          student_id TEXT NOT NULL,
-          title TEXT NOT NULL,
-          content TEXT NOT NULL,
-          timestamp DATETIME NOT NULL
-      );
-  """
-    create_replies_sql = """
-      CREATE TABLE IF NOT EXISTS replies (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          discussion_id INTEGER NOT NULL,
-          student_id TEXT NOT NULL,
-          content TEXT NOT NULL,
-          timestamp DATETIME NOT NULL,
-          FOREIGN KEY (discussion_id) REFERENCES discussions (id)
-      );
-  """
-
-
+   
     with get_db_connection() as conn:
         if conn is not None:
             try:
                 cursor = conn.cursor()
                 cursor.execute(create_users_sql)
-                cursor.execute(create_notifications_sql)
-                cursor.execute(create_discussions_sql)
-                cursor.execute(create_replies_sql)
                 conn.commit()
             except sqlite3.Error as e:
                 print(f"创建表失败: {e}")
@@ -169,57 +135,52 @@ def init_db():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name = request.form["name"]
-        student_id = request.form["student_id"]
-        password1 = request.form["password1"]
-        password2 = request.form["password2"]
+        username = request.form["username"]
+        passwd = request.form["passwd"]
         email = request.form["email"]
-        session["student_id"] = student_id
+        session["username"] = username
 
-        if password1 != password2:
-            flash("两次密码输入不一致，请重新输入", "danger")
-        else:
-            try:
-                conn = get_db_connection()
-                cursor = conn.cursor()
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM users WHERE username=?", (username,)
+            )
+            if cursor.fetchone():
+                flash("该用户名已被注册，请重新输入用户名", "danger")
+            else:
+                hashed_passwd = generate_password_hash(passwd)
                 cursor.execute(
-                    "SELECT * FROM students WHERE student_id=?", (student_id,)
+                    """
+                  INSERT INTO students (username, passwd, email) VALUES (?, ?, ?, ?)
+              """,
+                    (username, hashed_passwd, email),
                 )
-                if cursor.fetchone():
-                    flash("该学号或工号已经注册过", "danger")
-                else:
-                    hashed_password = generate_password_hash(password1)
-                    cursor.execute(
-                        """
-                      INSERT INTO students (name, student_id, password, email) VALUES (?, ?, ?, ?)
-                  """,
-                        (name, student_id, hashed_password, email),
-                    )
-                    conn.commit()
-                    return redirect(url_for("register_success"))
-            except sqlite3.Error as e:
-                flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+                conn.commit()
+                return redirect(url_for("register_success"))
+        except sqlite3.Error as e:
+            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("register.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        student_id = request.form["student_id"]
-        password = request.form["password"]
+        username = request.form["username"]
+        passwd = request.form["passwd"]
         try:
             with get_db_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "SELECT * FROM students WHERE student_id=?", (student_id,)
+                    "SELECT * FROM users WHERE username=?", (username,)
                 )
                 user = cursor.fetchone()
-                if user and check_password_hash(user["password"], password):
-                    session["student_id"] = student_id
+                if user and check_password_hash(user["passwd"], passwd):
+                    session["username"] = username
                     # 登录成功，可以进行进一步的操作
-                    return render_template("index.html", user=user)
+                    return render_template("index.html", username=username)
                 else:
-                    flash("学号或工号或密码错误，请检查后重新输入", "danger")
+                    flash("用户名或密码错误，请检查后重新输入!", "danger")
         except sqlite3.Error as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("login.html")
@@ -227,53 +188,46 @@ def login():
 
 @app.route("/")
 def index():
-    user = None
-    if "student_id" in session:
+    username = None
+    if "username" in session:
         try:
             with get_db_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "SELECT * FROM students WHERE student_id=?",
-                    (session["student_id"],),
+                    "SELECT * FROM users WHERE username=?",
+                    (session["username"],),
                 )
                 user = cursor.fetchone()
         except sqlite3.Error as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("login"))
 
-    return render_template("index.html", user=user)
+    return render_template("index.html", username=username)
 
 
 @app.route("/forget_password", methods=["GET", "POST"])
 def forget_password():
     if request.method == "POST":
-        student_id = request.form["student_id"]
+        username = request.form["username"]
         email = request.form["email"]
-        session["student_id"] = student_id
+        session["username"] = username
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT * FROM students WHERE student_id=? AND email=?",
-                (student_id, email),
+                "SELECT * FROM students WHERE username=? AND email=?",
+                (username, email),
             )
             user = cursor.fetchone()
             if user:
-                # 直接通过键名访问列的值
-                print("ID:", user["id"])
-                print("Name:", user["name"])
-                print("Student ID:", user["student_id"])
-                print("Email:", user["email"])
-                # 如果找到用户，生成验证码并发送邮件
                 verification_code = generate_verification_code()
                 if send_verification_email(user["email"], verification_code):
                     session["verification_code"] = verification_code
                     return render_template("verify_code_input.html")
-                    # 将验证码和用户ID存储在会话中
                 else:
                     flash("验证码发送失败，请稍后再试。", "danger")
             else:
-                flash("该学号或邮箱错误！请检查后重新填写。", "danger")
+                flash("该用户名或邮箱错误！请检查后重新填写。", "danger")
         except sqlite3.Error as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("forget_password.html")
@@ -315,7 +269,7 @@ def reset_password():
     if request.method == "POST":
         new_password = request.form["password1"]
         confirm_password = request.form["password2"]
-        student_id = session.get("student_id")
+        username = session.get("username")
         # 确保新密码和确认密码相同
         if new_password != confirm_password:
             flash("两次输入的密码不一致，请检查后重新输入", "danger")
@@ -329,9 +283,9 @@ def reset_password():
 
                 cursor.execute(
                     """
-                          UPDATE students SET password=? WHERE student_id=?
+                          UPDATE users SET passwd=? WHERE username=?
                       """,
-                    (hashed_password, student_id),
+                    (hashed_password, username),
                 )
                 conn.commit()
             except sqlite3.Error as e:
@@ -354,13 +308,13 @@ def register_success():
             with get_db_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "SELECT * FROM students WHERE student_id=?",
-                    (session["student_id"],),
+                    "SELECT * FROM users WHERE username=?",
+                    (session["username"],),
                 )
                 user = cursor.fetchone()
         except sqlite3.Error as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-        return render_template("index.html", user=user)
+        return render_template("index.html", username=username)
     return render_template("register_success.html")
 
 
@@ -369,7 +323,7 @@ client = ZhipuAI(api_key="aefb1b0854138803d342f319d9ca9ff8.mDMe8UQ7P9KZbnTQ")
 
 @app.route("/ai_assistant", methods=["GET", "POST"])
 def ai_assistant():
-    if "student_id" not in session:
+    if "username" not in session:
         # 如果用户未登录，重定向到登录页面
         return redirect(url_for("login"))
 
