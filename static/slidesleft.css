@@ -1,0 +1,34 @@
+.slides-left {
+    background-color: #c7c8cf;
+    width: 240px;
+    height: 384px;
+   position: absolute;
+   top: 20px;
+   left:20px;
+   border-radius: .4rem;
+}
+.slides-left-top{
+    width: 100%;
+    height: 70%;
+}
+.slides-left-buttom{
+    width: 100%;
+    height: 20%;
+   
+}
+.everydaylove{
+    width: 85%;
+    height: 90%;
+    background-color: aliceblue;
+    border-radius: 10px;
+    position: relative;
+    top: 10px;
+    left: 17px;
+    font-size: large;
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+.everydaylove .iconfont{
+    font-size:25px;
+}

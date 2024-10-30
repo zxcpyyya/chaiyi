@@ -1,0 +1,93 @@
+.second-kinds {
+    height: 50px;
+    width: 1296px;
+    background-color: #fff;
+    position: absolute;
+    top: 424px;
+}
+
+.navba .nav ul {
+    display: flex; /* 菜单项以行内排列 */
+    list-style: none; /* 移除列表样式 */
+}
+
+.navba .nav ul > li {
+    position: relative; /* 为下拉菜单设置定位 */
+    margin: 0 20px; /* 菜单项之间的间距 */
+}
+
+.navba .nav ul > li > a {
+    text-decoration: none; /* 移除链接下划线 */
+    color: #333; /* 文本颜色 */
+    padding: 15px 20px; /* 内边距增加可点击区域 */
+    display: block; /* 确保链接占满整个区域 */
+}
+
+.navba .nav ul > li ol {
+    width: 400px; /* 下拉菜单宽度 */
+    background-color: rgba(255, 255, 255, 0.9); /* 半透明背景 */
+    border-radius: 5px; /* 圆角 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+    opacity: 0; /* 初始透明度 */
+    visibility: hidden; /* 默认隐藏 */
+    position: absolute; /* 绝对定位 */
+    z-index: 1; /* 确保下拉菜单在上方 */
+    top: 100%; /* 位置在菜单项下方 */
+    left: 50%; /* 水平居中 */
+    transform: translateX(-50%); /* 调整位置 */
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s; /* 渐变效果 */
+}
+
+.navba .nav ul > li:hover ol {
+    opacity: 1; /* 悬停时透明度为1 */
+    visibility: visible; /* 悬停时变为可见 */
+    transition: opacity 0.3s ease; /* 悬停时的渐变效果 */
+}
+
+.navba .nav ul > li ol {
+    display: grid; /* 使用网格布局展示下拉项 */
+    grid-template-columns: repeat(2, 1fr); /* 两列 */
+    padding: 10px 0; /* 内边距 */
+}
+
+.navba .nav ul > li ol li {
+    height: 40px; /* 每项高度 */
+}
+
+.navba .nav ul > li ol li a {
+    line-height: 40px; /* 行高对齐 */
+    padding: 0 10px; /* 内边距 */
+    display: block; /* 确保可点击 */
+    color: #333; /* 文本颜色 */
+}
+
+.navba .nav ul > li ol li:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* 鼠标悬停时背景颜色 */
+}
+
+.navba .nav ul .underline {
+    position: absolute; /* 下划线绝对定位 */
+    bottom: 0; /* 距离底部 */
+    left: 0; /* 左对齐 */
+    width: 100px; /* 下划线宽度 */
+    height: 6px; /* 下划线高度 */
+    border-top-left-radius: 6px; /* 左上角圆角 */
+    border-top-right-radius: 6px; /* 右上角圆角 */
+    
+    transition: all 0.5s; /* 动画过渡效果 */
+    pointer-events: none; /* 不干扰鼠标事件 */
+}
+
+/* 修改下划线跟随逻辑 */
+.navba .nav ul > li:nth-child(1):hover ~ .underline {
+    left: 0; /* 菜品分类 */
+    background-color: #cc3333; /* 下划线颜色 */
+}
+.navba .nav ul > li:nth-child(2):hover ~ .underline {
+    left: 150px; /* 地区分类 */
+    background-color: #cc3333; /* 下划线颜色 */
+}
+.nav > ul > li > ol:first-of-type {
+    position: absolute;
+   left: 150px;
+}

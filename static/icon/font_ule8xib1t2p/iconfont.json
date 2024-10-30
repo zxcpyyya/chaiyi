@@ -1,0 +1,23 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1985021",
+      "name": "美食",
+      "font_class": "meishi",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "2076277",
+      "name": " 店铺",
+      "font_class": "dianpu",
+      "unicode": "e895",
+      "unicode_decimal": 59541
+    }
+  ]
+}

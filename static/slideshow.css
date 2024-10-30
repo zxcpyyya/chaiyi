@@ -1,0 +1,108 @@
+
+.windows-top3{
+    position: absolute;
+    top: 20px;
+    top: 100px;
+    height: 424px;
+    width: 1296px;;    
+    display: flex;
+    background-color: #fff;
+    border-top-left-radius: .4rem;
+    border-top-right-radius: .4rem;
+}
+
+
+/* 轮播图 */
+.slideshow-center {
+    height: 384px;
+    width: 736px;
+   background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    left: 280px;
+    top: 20px;
+    border-radius: 0.4rem;
+    display: flex; /* 添加flexbox来居中内容 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+}
+
+.shell {
+    position: relative;
+    width: 60%; /* 调整宽度以适应父容器 */
+    height: 60%; /* 调整高度以适应父容器 */
+    max-width: 380px;
+    max-height: 250px; 
+    margin: 0;
+    color: white;
+    perspective: 1000px;
+    transform-origin: center;
+}
+
+.item {
+    position: absolute;
+    width: 100%; /* 适应父元素宽度 */
+    height: 100%; /* 适应父元素高度 */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    background-size: cover;
+    /* 删除倒影效果 */
+    /* -webkit-box-reflect: below 25px -webkit-linear-gradient(transparent 50%, rgba(255, 255, 255, 0.3)); */
+    transform: scale(0.5); /* 初始缩放为50% */
+}
+
+/* 确保每个项的transform包括scale */
+.item:nth-child(1) {
+    
+    transform: rotateY(0) translateZ(25vw) scale(1.5);
+}
+
+.item:nth-child(2) {
+   
+    transform: rotateY(120deg) translateZ(25vw) scale(1.5);
+}
+
+.item:nth-child(3) {
+  
+    transform: rotateY(240deg) translateZ(25vw) scale(1.5);
+}
+
+/* 内容的动画 */
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease; /* 保持平滑过渡 */
+}
+
+/* 确保 content 初始状态 */
+.content {
+    transform: translateZ(-25vw) rotateY(0deg); /* 初始旋转和位置 */
+}
+/* 箭头样式 */
+.arrowr{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2em;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    font-size: 30px;
+}
+
+.arrowr.left {
+    left: -150px; /* 左箭头位置 */
+}
+
+.arrowr.right {
+    right: -150px; /* 右箭头位置 */
+}
+.item img{
+    width: 100%;
+    height: 100%;
+}

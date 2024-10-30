@@ -1,0 +1,91 @@
+html {
+    font-size: 22px;
+}
+
+.top {
+    background-color: #c7c8cf;
+    width: 100vw;
+    height: 200px;
+    position: absolute;
+    left: 0;
+    top: 20px;
+    border-radius: .4rem;
+    display: flex;
+    /*有了这个就可以控制盒子的布局方式，下面两个就是*/
+    justify-content: space-evenly;
+    /*使盒子与盒子之间相同间隔排列*/
+    align-items: center;
+}
+
+.buttom {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    /*有了这个就可以控制盒子的布局方式，下面两个就是*/
+    justify-content: space-evenly;
+    /*使盒子与盒子之间相同间隔排列*/
+    align-items: center;
+    background-image: radial-gradient(circle 311px at 8.6% 27.9%, rgba(62, 147, 252, 0.57) 12.9%, rgba(239, 183, 192, 0.44) 91.2%);
+    ;
+}
+
+
+.card-container {
+    width: 300px;
+    height: 400px;
+    position: relative;
+    /*相对定位*/
+    perspective: 1000px;
+}
+
+.cover,
+.back {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    /*绝对定位*/
+    backface-visibility: hidden;
+    /*使盒子有背面，并且当旋转到背面的时候不会显示背面元素*/
+    transition: transform .25s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    border-radius: .4rem;
+    /*圆角*/
+    box-shadow: 0 .2rem .5rem rgba(0, 0, 0, .18);
+}
+
+.cover img {
+    height: 100%;
+    width: 100%;
+}
+
+
+.cover {
+    background-image: radial-gradient(circle 853px at 3.3% 5.3%, rgba(29, 231, 240, 0.56) 0%, rgba(247, 92, 246, 0.5) 100.2%);
+    transform: rotatey(0deg);
+    /*翻面为0度*/
+}
+
+.back {
+
+    transform: rotatey(-180deg);
+}
+
+
+.card-container:hover {
+    box-shadow: 2px 2px 5px #555;
+}
+
+
+.card-container.is-flipped .cover {
+    transform: rotatey(180deg);
+}
+
+.card-container.is-flipped .back {
+    transform: rotatey(0deg);
+}

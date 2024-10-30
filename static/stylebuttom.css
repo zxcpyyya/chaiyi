@@ -1,0 +1,163 @@
+.windows-buttom {
+    position: absolute;
+    top: 474px;
+    flex: block;
+
+}
+
+.container2 {
+    position: relative;
+    display: flex;
+    width: 1296px;
+    height: 200px;
+    background-color: aliceblue;
+}
+
+.container2-1 {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 220px;
+    height: 200px;
+
+}
+
+.container2>a>.container2-1 img {
+    position: relative;
+    left: 10px;
+    top: 15px;
+    background-color: #666;
+    height: 170px;
+    width: 200px;
+}
+
+.container2-2 {
+    position: relative;
+    width: 1080px;
+    height: 200px;
+
+}
+
+.container2-2>a {
+    text-decoration: none;
+}
+
+.name {
+    position: relative;
+    top: 10px;
+    left: 10px;
+}
+
+/* 种类和位置信息 */
+.kinds {
+    position: relative;
+    top: 10px;
+    left: 10px;
+}
+
+.play {
+    position: relative;
+    top: 10px;
+    left: 15px;
+}
+
+
+/* 评论与人均消费 */
+.stats {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    position: relative;
+    left: 15px;
+}
+
+.stat-item {
+    margin-right: 15px;
+}
+
+/* 五角星评分 */
+.score {
+    position: relative;
+    width: 100px;
+    height: 20px;
+    background-color: #f0f0f0;
+    overflow: hidden;
+}
+
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: orange;
+    transition: width 0.5s;
+    z-index: 1;
+    /* 背景在最底层 */
+}
+
+.stars {
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    /* 星星在背景之上 */
+    height: 100%;
+    width: 100%;
+}
+
+.star {
+    width: 16%;
+    /* 调整星星宽度，留出分隔符的空间 */
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>') no-repeat center;
+    background-size: contain;
+}
+
+.star.filled {
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>') no-repeat center;
+    background-size: contain;
+}
+
+.separator {
+    width: 2px;
+    /* 分隔符宽度 */
+    height: 60%;
+    /* 分隔符高度 */
+    background-color: white;
+    /* 分隔符颜色 */
+    margin: 0 2%;
+    /* 左右间距 */
+}
+
+.love-collect .iconfont:nth-child(2){
+    font-size: 25px;
+}
+/* 爱心效果 */
+.icon-a-ziyuan13s {
+
+    /* 图标大小 */
+    color: gray;
+    /* 默认颜色 */
+    transition: color 0.3s;
+    /* 平滑过渡效果 */
+    cursor: pointer;
+    /* 鼠标悬停效果 */
+    position: absolute;
+    top: 15px;
+    left: 170px;
+}
+
+.icon-shoucang1 {
+   
+    /* 图标大小 */
+    color: gray;
+    /* 默认颜色 */
+    transition: color 0.3s;
+    /* 平滑过渡效果 */
+    cursor: pointer;
+    /* 鼠标悬停效果 */
+    position: absolute;
+    top: 7px;
+    left: 200px;
+}

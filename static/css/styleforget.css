@@ -8,7 +8,7 @@ body {
     /* 视口高度 */
     margin: 0;
     /* 去除默认边距 */
-     background-image: url("forgetback.jpg");
+     background-image: url("../img/forgetback.jpg");
      background-repeat: no-repeat;/*确保背景图像不重复。*/
      overflow: hidden;/*隐藏溢出容器边界的任何内容。*/
      background-position: center; /* 背景图像中心对齐 */
@@ -61,3 +61,16 @@ button {
     cursor: pointer;
     /* 鼠标悬停时显示为手形 */
 } 
+#submit {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s; /* 添加过渡效果 */
+}
+
+#submit:active {
+    transform: scale(0.95); /* 点击时缩小 */
+}

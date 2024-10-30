@@ -3,13 +3,13 @@
 
 <head>
     <meta charset="utf-8">
-    <title>实现左右过渡切换的登录注册页面</title>
-    <link rel="stylesheet" href="..\static\stylelogin.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录注册页面</title>
+    <link rel="stylesheet" href="../static/css/stylelogin.css">
 </head>
 
 <body>
 
-    <!-- 右上 -->
     <div class="navbar">
         <a href="user_agreement.html" class="nav-item">用户协议</a>
         <a href="privacy_policy.html" class="nav-item">隐私政策</a>
@@ -18,54 +18,49 @@
             <span>中文（简体）</span>
         </div>
     </div>
-    <!-- 登录界面 -->
+
     <div class="dowebok">
         <div class="form sign-in">
             <h2>欢迎回来</h2>
-
-            <div class="password11">
+            <form class="password11">
                 <input placeholder="用户名" type="text" name="username" required />
                 <input placeholder="密码" type="password" id="password" name="passwd" required />
-            </div>
-            
-            <button type="button" class="submit">登 录</button>
-            <button type="button" class="fb-btn">暂不登陆，先看看？</button>
-            <p class="forgot-pass"><a href="forget_passwd.html">忘记密码？</a></p>
+                <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
+                <button type="submit" id="submit"class="submit">登 录</button>
+            </form>
+            <p class="forgot-pass"><a href="{{url_for('forget_passwd')}}">忘记密码？</a></p>
         </div>
+
         <div class="sub-cont">
             <div class="img">
                 <div class="img__text m--up">
                     <h2>还未注册？</h2>
-
                 </div>
                 <div class="img__text m--in">
                     <h2>已有帐号？</h2>
-
                 </div>
                 <div class="img__btn">
                     <span class="m--up">注 册</span>
                     <span class="m--in">登 录</span>
                 </div>
             </div>
+
             <div class="form sign-up">
                 <h2>立即注册</h2>
-                <div class="password11">
+                <form class="password11">
                     <input placeholder="用户名" type="text" name="username" required />
-
-
-                    <input placeholder="邮箱" name="email" type="email" required />
-
-
+                    <input placeholder="邮箱" type="email" name="email" required />
                     <input placeholder="密码" type="password" name="passwd" required />
+                    <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
                     <div>
-                        <button type="button" class="submit">注 册</button>
-                        <button type="button" class="fb-btn">暂不登陆，先看看？</button>
+                        <button type="submit" id="submit"class="submit">注 册</button>
                     </div>
-                </div>
+                </form>
             </div>
+        </div>
+    </div>
 
-            <script src="..\static\login.js"></script>
-          
+    <script src="../static/js/login.js"></script>
 </body>
 
 </html>
