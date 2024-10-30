@@ -1,32 +1,46 @@
-import base64
+import os
+import logging
 from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3
 import random
 import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
-from zhipuai import ZhipuAI
 from datetime import datetime, timezone, timedelta
 import redis
 import uuid
 import json
+from flask_mysqldb import MySQL
+from mysql.connector import Error as MySQLError
+
+# 配置日志记录
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 app.config.from_object("config.Config")
 
-redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+def get_db_connection():
+   try:
+       conn = mysql.connection
+       return conn
+   except MySQLError as e:
+       logging.error(f"数据库连接失败: {e}")
+       return None
+   
+app.config.from_object("config.Config")
+mysql = MySQL(app)
+redis_client = redis.StrictRedis(host="localhost", port=6379, db=0)
 
 
 @app.before_request
 def before_request():
-    session_id = session.get('session_id')
+    session_id = session.get("session_id")
     if not session_id:
         # 生成一个新的session_id，并设置到cookie中
         session_id = str(uuid.uuid4())
-        session['session_id'] = session_id
+        session["session_id"] = session_id
         # 在Redis中存储一个空会话
-        redis_client.set(session_id, '{}')
+        redis_client.set(session_id, "{}")
     else:
         # 从Redis加载会话数据
         session_data = redis_client.get(session_id)
@@ -36,31 +50,33 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    session_id = session.get('session_id')
+    session_id = session.get("session_id")
     if session_id:
         # 序列化session字典，并存储到Redis中
         # 检查session中的每个值，如果是datetime对象，则转换为ISO 8601格式的字符串
-        session_data = {key: value.isoformat() if isinstance(value, datetime) else value for key, value in
-                        session.items()}
+        session_data = {
+            key: value.isoformat() if isinstance(value, datetime) else value
+            for key, value in session.items()
+        }
         redis_client.set(session_id, json.dumps(session_data))
     return response
 
 
-@app.route('/set_session_value')
+@app.route("/set_session_value")
 def set_session_value():
-    session['key'] = 'value'
-    return 'Session value set'
+    session["key"] = "value"
+    return "Session value set"
 
 
-@app.route('/get_session_value')
+@app.route("/get_session_value")
 def get_session_value():
-    return session.get('key', 'No value in session')
+    return session.get("key", "No value in session")
 
 
 def generate_verification_code():
     return "".join([str(random.randint(0, 9)) for _ in range(6)])
 
-
+app.config['VERIFICATION_CODE_EXPIRATION'] = int(os.getenv('VERIFICATION_CODE_EXPIRATION', 600))
 nickname = "智慧教育平台"
 email_address = "206284929@qq.com"
 
@@ -102,34 +118,24 @@ def send_verification_email(email, verification_code):
         return False
 
 
-def get_db_connection():
-    try:
-        conn = sqlite3.connect("my_database.db", detect_types=sqlite3.PARSE_DECLTYPES)
-        conn.row_factory = sqlite3.Row
-        return conn
-    except sqlite3.Error as e:
-        print(f"数据库连接失败: {e}")
-        return None
-
 
 def init_db():
-    create_users_sql = """
-      CREATE TABLE IF NOT EXISTS students (
-          username TEXT NOT NULL,
-          passwd TEXT NOT NULL,
-          email TEXT NOT NULL
-      );
-  """
-   
-    with get_db_connection() as conn:
-        if conn is not None:
-            try:
-                cursor = conn.cursor()
-                cursor.execute(create_users_sql)
-                conn.commit()
-            except sqlite3.Error as e:
-                print(f"创建表失败: {e}")
-
+   create_users_sql = """
+     CREATE TABLE IF NOT EXISTS students (
+         username VARCHAR(255) NOT NULL,
+        passwd VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        PRIMARY KEY (username)
+     );
+ """
+   with get_db_connection() as conn:
+       if conn is not None:
+           try:
+               cursor = conn.cursor()
+               cursor.execute(create_users_sql)
+               conn.commit()
+           except MySQLError as e:
+               logging.error(f"创建表失败: {e}")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -143,22 +149,20 @@ def register():
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM users WHERE username=?", (username,)
-            )
+            cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
             if cursor.fetchone():
                 flash("该用户名已被注册，请重新输入用户名", "danger")
             else:
                 hashed_passwd = generate_password_hash(passwd)
                 cursor.execute(
                     """
-                  INSERT INTO students (username, passwd, email) VALUES (?, ?, ?, ?)
+                  INSERT INTO students (username, passwd, email) VALUES (%s,%s,%s)
               """,
                     (username, hashed_passwd, email),
                 )
                 conn.commit()
                 return redirect(url_for("register_success"))
-        except sqlite3.Error as e:
+        except Exception as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("register.html")
 
@@ -171,9 +175,7 @@ def login():
         try:
             with get_db_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    "SELECT * FROM users WHERE username=?", (username,)
-                )
+                cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
                 user = cursor.fetchone()
                 if user and check_password_hash(user["passwd"], passwd):
                     session["username"] = username
@@ -181,7 +183,7 @@ def login():
                     return render_template("index.html", username=username)
                 else:
                     flash("用户名或密码错误，请检查后重新输入!", "danger")
-        except sqlite3.Error as e:
+        except Exception as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("login.html")
 
@@ -194,11 +196,11 @@ def index():
             with get_db_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "SELECT * FROM users WHERE username=?",
+                    "SELECT * FROM users WHERE username=%s",
                     (session["username"],),
                 )
                 user = cursor.fetchone()
-        except sqlite3.Error as e:
+        except Exception as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("login"))
 
@@ -215,7 +217,7 @@ def forget_password():
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT * FROM students WHERE username=? AND email=?",
+                "SELECT * FROM students WHERE username=%s AND email=%s",
                 (username, email),
             )
             user = cursor.fetchone()
@@ -228,7 +230,7 @@ def forget_password():
                     flash("验证码发送失败，请稍后再试。", "danger")
             else:
                 flash("该用户名或邮箱错误！请检查后重新填写。", "danger")
-        except sqlite3.Error as e:
+        except Exception as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("forget_password.html")
 
@@ -244,8 +246,9 @@ def verify_code():
         if "verification_code" in session and "verification_time" in session:
             verification_code_session = session["verification_code"]
             # 将时间字符串转换回datetime对象，并确保它是时区相关的
-            verification_time_session = datetime.fromisoformat(session["verification_time"]).replace(
-                tzinfo=timezone.utc)
+            verification_time_session = datetime.fromisoformat(
+                session["verification_time"]
+            ).replace(tzinfo=timezone.utc)
 
             # 计算时间差
             time_diff = current_time_utc - verification_time_session
@@ -283,329 +286,12 @@ def reset_password():
 
                 cursor.execute(
                     """
-                          UPDATE users SET passwd=? WHERE username=?
+                          UPDATE users SET passwd=%s WHERE username=%s
                       """,
                     (hashed_password, username),
                 )
                 conn.commit()
-            except sqlite3.Error as e:
+            except Exception as e:
                 flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("reset_password_success"))
     return render_template("reset_password.html")
-
-
-@app.route("/reset_password_success", methods=["GET", "POST"])
-def reset_password_success():
-    if request.method == "POST":
-        return render_template("login.html")
-    return render_template("reset_password_success.html")
-
-
-@app.route("/register_success", methods=["GET", "POST"])
-def register_success():
-    if request.method == "POST":
-        try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "SELECT * FROM users WHERE username=?",
-                    (session["username"],),
-                )
-                user = cursor.fetchone()
-        except sqlite3.Error as e:
-            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-        return render_template("index.html", username=username)
-    return render_template("register_success.html")
-
-
-client = ZhipuAI(api_key="aefb1b0854138803d342f319d9ca9ff8.mDMe8UQ7P9KZbnTQ")
-
-
-@app.route("/ai_assistant", methods=["GET", "POST"])
-def ai_assistant():
-    if "username" not in session:
-        # 如果用户未登录，重定向到登录页面
-        return redirect(url_for("login"))
-
-    chat_history = session.get("chat_history", [])
-    user_question = ""
-    ai_answer = ""
-
-    if request.method == "POST":
-        user_question = request.form["question"]
-        try:
-            response = client.chat.completions.create(
-                model="glm-4",
-                messages=[{"role": "user", "content": user_question}],
-            )
-            ai_answer = response.choices[0].message.content
-            # 将用户问题和AI的回答添加到对话历史中
-            chat_history.append((user_question, ai_answer))
-        except Exception as e:
-            ai_answer = f"AI助手出现错误：{str(e)}"
-            flash("AI助手无法回答问题，请稍后再试。", "danger")
-
-    # 更新会话中的对话历史
-    session["chat_history"] = chat_history
-
-    return render_template(
-        "ai_assistant.html",
-        question=user_question,
-        answer=ai_answer,
-        chat_history=chat_history,
-    )
-
-
-
-@app.route("/logout")
-def logout():
-    session.clear()  # 清除会话中的所有信息
-    return redirect(url_for("index"))
-
-
-@app.route("/add_notifications", methods=["GET", "POST"])
-def add_notifications():
-    if "student_id" not in session:
-        return redirect(url_for("login"))
-    if request.method == "POST":
-        title = request.form["title"]
-        content = request.form["content"]
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        try:
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO notifications (title, content, timestamp) VALUES (?, ?, ?)",
-                (title, content, timestamp),
-            )
-            conn.commit()
-            conn.close()
-            session["success_message"] = "通知添加成功！"
-            return redirect(url_for("success"))
-        except sqlite3.Error as e:
-            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-    return render_template("add_notifications.html")
-
-
-@app.route("/notifications")
-def notifications():
-    if "student_id" not in session:
-        return redirect(url_for("login"))
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM notifications ORDER BY timestamp DESC")
-    notifications = cursor.fetchall()
-
-    # 将Row对象转换为字典，并格式化时间戳
-    formatted_notifications = []
-    for notification in notifications:
-        notification_dict = dict(notification)
-        notification_dict['formatted_timestamp'] = datetime.strptime(notification_dict['timestamp'],
-                                                                     "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
-        formatted_notifications.append(notification_dict)
-
-    conn.close()
-
-    return render_template("notifications.html", notifications=formatted_notifications)
-
-
-
-
-@app.route("/discussions")
-def discussions():
-    if "student_id" not in session:
-        return redirect(url_for("login"))
-
-    try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM discussions ORDER BY timestamp DESC")
-            discussions = cursor.fetchall()
-            # 将时间字符串转换为 datetime 对象，并截断到秒
-            discussions_list = []
-            for discussion in discussions:
-                time_str = discussion["timestamp"]
-                time_str = time_str[:19]  # 截断到秒
-                discussion_dict = dict(discussion)
-                discussion_dict["timestamp"] = datetime.strptime(
-                    time_str, "%Y-%m-%d %H:%M:%S"
-                )
-                discussions_list.append(discussion_dict)
-            return render_template("discussions.html", discussions=discussions_list)
-    except sqlite3.Error as e:
-        flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-        return redirect(url_for("index"))
-
-
-@app.route("/create_discussion", methods=["GET", "POST"])
-def create_discussion():
-    if "student_id" not in session:
-        return redirect(url_for("login"))
-
-    if request.method == "POST":
-        title = request.form["title"]
-        content = request.form["content"]
-        student_id = session["student_id"]
-        timestamp = datetime.now()
-
-        try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    """
-                   INSERT INTO discussions (student_id, title, content, timestamp) VALUES (?, ?, ?, ?)
-               """,
-                    (student_id, title, content, timestamp),
-                )
-                conn.commit()
-                return redirect(url_for("discussions"))
-        except sqlite3.Error as e:
-            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-
-    return render_template("create_discussion.html")
-
-
-@app.route("/delete_discussion/<int:discussion_id>", methods=["DELETE"])
-def delete_discussion(discussion_id):
-    if "student_id" not in session:
-        return redirect(url_for("login"))
-
-    student_id = session["student_id"]
-    try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            # 检查讨论帖是否存在
-            cursor.execute("SELECT * FROM discussions WHERE id=?", (discussion_id,))
-            discussion = cursor.fetchone()
-            if not discussion:
-                flash("讨论帖不存在", "danger")
-                return redirect(url_for("discussions"))
-
-            # 检查权限
-            if discussion['student_id'] != student_id and student_id != "2215304122":
-                flash("您没有权限删除该讨论帖", "danger")
-                return redirect(url_for("discussion_detail", discussion_id=discussion_id))
-
-            # 删除讨论帖及其所有回复
-            cursor.execute("DELETE FROM replies WHERE discussion_id=?", (discussion_id,))
-            cursor.execute("DELETE FROM discussions WHERE id=?", (discussion_id,))
-            conn.commit()
-            flash("讨论帖已删除", "success")
-    except sqlite3.Error as e:
-        flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-
-    return redirect(url_for("discussions"))
-
-
-@app.route("/discussion/<int:discussion_id>")
-def discussion_detail(discussion_id):
-    if "student_id" not in session:
-        return redirect(url_for("login"))
-
-    try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM discussions WHERE id=?", (discussion_id,))
-            discussion = cursor.fetchone()
-            if discussion:
-                discussion = dict(discussion)
-                discussion['timestamp'] = discussion['timestamp'][:19]  # 截断到秒
-
-            cursor.execute(
-                "SELECT * FROM replies WHERE discussion_id=? ORDER BY timestamp ASC",
-                (discussion_id,),
-            )
-            replies = cursor.fetchall()
-            replies_list = []
-            for reply in replies:
-                reply_dict = dict(reply)
-                reply_dict['timestamp'] = reply_dict['timestamp'][:19]  # 截断到秒
-                replies_list.append(reply_dict)
-
-            return render_template(
-                "discussion_detail.html", discussion=discussion, replies=replies_list
-            )
-    except sqlite3.Error as e:
-        flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-        return redirect(url_for("discussions"))
-
-
-@app.route('/reply', methods=['POST'])
-def reply():
-    content = request.form.get('content')
-    discussion_id = request.form.get('discussion_id')
-    student_id = session.get('student_id')  # 获取当前登录的学生ID
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    if not content or not discussion_id or not student_id:
-        app.logger.error('Invalid input, content, discussion_id, and student_id are required')
-        return jsonify({'error': 'Invalid input, content, discussion_id, and student_id are required'}), 400
-
-    # 保存回复到数据库
-    try:
-        conn = sqlite3.connect('my_database.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-           INSERT INTO replies (discussion_id, student_id, content, timestamp)
-           VALUES (?, ?, ?, ?)
-       ''', (discussion_id, student_id, content, timestamp))
-        conn.commit()
-        reply_id = cursor.lastrowid  # 获取新插入回复的ID
-    except sqlite3.Error as e:
-        app.logger.error('Database error: ' + str(e))
-        return jsonify({'error': 'Database error'}), 500
-    finally:
-        if conn:
-            conn.close()
-
-    # 返回新回复的数据
-    return jsonify({
-        'discussion_id': discussion_id,
-        'student_id': student_id,
-        'content': content,
-        'timestamp': timestamp,
-        'id': reply_id  # 包含新回复的ID
-    })
-
-
-@app.route("/delete_reply/<int:reply_id>", methods=["POST"])
-def delete_reply(reply_id):
-    if "student_id" not in session:
-        return redirect(url_for("login"))
-
-    student_id = session["student_id"]
-    try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            # 检查评论是否存在
-            cursor.execute("SELECT * FROM replies WHERE id=?", (reply_id,))
-            reply = cursor.fetchone()
-            if not reply:
-                flash("评论不存在", "danger")
-                return redirect(url_for("discussion_detail", discussion_id=reply['discussion_id']))
-
-            # 检查权限
-            if reply['student_id'] != student_id and student_id != "2215304122":
-                flash("您没有权限删除该评论", "danger")
-                return redirect(url_for("discussion_detail", discussion_id=reply['discussion_id']))
-
-            # 删除评论
-            cursor.execute("DELETE FROM replies WHERE id=?", (reply_id,))
-            conn.commit()
-            flash("评论已删除", "success")
-    except sqlite3.Error as e:
-        flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-
-    return redirect(url_for("discussion_detail", discussion_id=reply['discussion_id']))
-
-
-
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
-
-if __name__ == "__main__":
-    init_db()
-    app.run(debug=True)
