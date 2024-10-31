@@ -139,10 +139,21 @@ def send_verification_email(email, verification_code):
 def init_db():
     create_users_sql = """
    CREATE TABLE IF NOT EXISTS users (
-       username VARCHAR(255) NOT NULL,
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       username VARCHAR(255) NOT NULL UNIQUE,
        passwd VARCHAR(255) NOT NULL,
        email VARCHAR(255) NOT NULL,
-       PRIMARY KEY (username)
+       registered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+       last_login DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+   );
+   """
+    create_login_history_sql = """
+   CREATE TABLE IF NOT EXISTS login_history (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       user_id INT NOT NULL,
+       login_time DATETIME NOT NULL,
+       ip_address VARCHAR(255) NOT NULL,
+       FOREIGN KEY (user_id) REFERENCES users(id)
    );
    """
     try:
@@ -154,9 +165,11 @@ def init_db():
         )
         cursor = conn.cursor()
         cursor.execute(create_users_sql)
+        cursor.execute(create_login_history_sql)
         conn.commit()
         cursor.close()
         conn.close()
+        logging.info("数据库表创建成功")
     except MySQLError as e:
         logging.error(f"创建表失败: {e}")
 
@@ -360,6 +373,122 @@ def reset_password():
                     conn.close()
             return redirect(url_for("index"))
     return render_template("reset_password.html")
+
+
+@app.route("/profile")
+def profile():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    try:
+        conn = mysql.connector.connect(
+            host=app.config["MYSQL_HOST"],
+            user=app.config["MYSQL_USER"],
+            password=app.config["MYSQL_PASSWORD"],
+            database=app.config["MYSQL_DB"],
+        )
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE username=%s", (session["username"],))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user:
+            return render_template("profile.html", user=user)
+        else:
+            flash("用户信息获取失败", "danger")
+            return redirect(url_for("login"))
+    except MySQLError as e:
+        flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+        return redirect(url_for("login"))
+
+
+@app.route("/change_password", methods=["GET", "POST"])
+def change_password():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        old_password = request.form["old_password"]
+        new_password = request.form["new_password"]
+        confirm_password = request.form["confirm_password"]
+
+        if new_password != confirm_password:
+            flash("两次输入的新密码不一致", "danger")
+            return redirect(url_for("change_password"))
+
+        try:
+            conn = mysql.connector.connect(
+                host=app.config["MYSQL_HOST"],
+                user=app.config["MYSQL_USER"],
+                password=app.config["MYSQL_PASSWORD"],
+                database=app.config["MYSQL_DB"],
+            )
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(
+                "SELECT * FROM users WHERE username=%s", (session["username"],)
+            )
+            user = cursor.fetchone()
+
+            if user and check_password_hash(user["passwd"], old_password):
+                hashed_new_password = generate_password_hash(new_password)
+                cursor.execute(
+                    "UPDATE users SET passwd=%s WHERE username=%s",
+                    (hashed_new_password, session["username"]),
+                )
+                conn.commit()
+                flash("密码修改成功", "success")
+                return redirect(url_for("profile"))
+            else:
+                flash("旧密码错误", "danger")
+                return redirect(url_for("change_password"))
+
+        except MySQLError as e:
+            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+            return redirect(url_for("change_password"))
+
+    return render_template("change_password.html")
+
+
+@app.route("/change_email", methods=["GET", "POST"])
+def change_email():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        new_email = request.form["new_email"]
+        password = request.form["password"]
+
+        try:
+            conn = mysql.connector.connect(
+                host=app.config["MYSQL_HOST"],
+                user=app.config["MYSQL_USER"],
+                password=app.config["MYSQL_PASSWORD"],
+                database=app.config["MYSQL_DB"],
+            )
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(
+                "SELECT * FROM users WHERE username=%s", (session["username"],)
+            )
+            user = cursor.fetchone()
+
+            if user and check_password_hash(user["passwd"], password):
+                cursor.execute(
+                    "UPDATE users SET email=%s WHERE username=%s",
+                    (new_email, session["username"]),
+                )
+                conn.commit()
+                flash("邮箱修改成功", "success")
+                return redirect(url_for("profile"))
+            else:
+                flash("密码错误", "danger")
+                return redirect(url_for("change_email"))
+
+        except MySQLError as e:
+            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+            return redirect(url_for("change_email"))
+
+    return render_template("change_email.html")
 
 
 if __name__ == "__main__":
