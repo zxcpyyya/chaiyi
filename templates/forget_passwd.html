@@ -1,11 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        span {
+
+            position: relative;
+            left: 40px;
+            top: 40px;
+        }
+        span>p{
+            font-size: large;
+        }
+        button {
+            height: 50px;
+            width: 300px;
+            position: relative;
+            top: 100px;
+            left: 100px;
+        }
+
+        .passwords>.tishi>P {
+        
+           color: brown;
+        }
+        .passwords {
+            position: relative;
+            top: 70px;
+            left: 40px;
+            position: relative;
+            display: block;
+
+        }
+        .tishi{
+            visibility: hidden;
+        }
+        .error{
+            position: relative;
+            top: 80px;
+            left: 40px;
+        }
+    </style>
+    <link rel="stylesheet" href="..\static\styleforget.css">
 </head>
+
 <body>
-    cwk是真几把帅1111111111111111111111111111111
+    <div class="container1">
+        <div class="main">
+        <span>
+            <p>邮箱:</p>
+        </span>
+      
+        <div class="passwords">
+            <input type="email" id="email" placeholder="邮箱地址" name="email"required />
+        </div>
+        <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
+        <button>发送验证码</button>
+        </div>
+    </div>
 </body>
+
 </html>

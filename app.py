@@ -20,9 +20,6 @@ from datetime import datetime, timezone, timedelta
 import redis
 import uuid
 import json
-
-ffrom
-flask_mysqldb
 import MySQL
 from mysql.connector import pooling
 from mysql.connector import Error as MySQLError
@@ -38,6 +35,7 @@ logging.basicConfig(
 )
 logging.getLogger().setLevel(logging.DEBUG)
 session["verification_time"] = datetime.now(timezone.utc)
+
 app = Flask(__name__)
 
 # 应用配置
@@ -53,19 +51,21 @@ mysql_pool = pooling.MySQLConnectionPool(
     host=app.config["MYSQL_HOST"],
     user=app.config["MYSQL_USER"],
     password=app.config["MYSQL_PASSWORD"],
-    database=app.config["MYSQL_DB"]
+    database=app.config["MYSQL_DB"],
 )
 
 
 def get_db_connection():
     try:
         conn = mysql_pool.get_connection()
+        conn = mysql.connection
         return conn
     except MySQLError as e:
         logging.error(f"数据库连接失败: {e}")
         return None
 
 
+app.config.from_object("config.Config")
 mysql = MySQL(app)
 redis_client = redis.StrictRedis.from_url(app.config["REDIS_URL"])
 
@@ -159,6 +159,25 @@ def send_verification_email(email, verification_code):
     except Exception as e:
         logging.error(f"邮件发送失败: {e}")
         return False
+
+
+def init_db():
+    create_users_sql = """
+     CREATE TABLE IF NOT EXISTS students (
+         username VARCHAR(255) NOT NULL,
+        passwd VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        PRIMARY KEY (username)
+     );
+ """
+    with get_db_connection() as conn:
+        if conn is not None:
+            try:
+                cursor = conn.cursor()
+                cursor.execute(create_users_sql)
+                conn.commit()
+            except MySQLError as e:
+                logging.error(f"创建表失败: {e}")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -317,6 +336,18 @@ def reset_password():
                 flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("index"))
     return render_template("reset_password.html")
+
+
+@app.route("/recommendations")
+def recommendations():
+    user_id = session.get("user_id")
+    if user_id:
+        recommended_items = recommend(user_id, item_similarity, user_ratings)
+        return render_template(
+            "recommendations.html", recommended_items=recommended_items
+        )
+    else:
+        return redirect(url_for("login"))
 
 
 @app.route("/recommendations")
