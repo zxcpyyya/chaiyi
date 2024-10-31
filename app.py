@@ -20,11 +20,9 @@ from datetime import datetime, timezone, timedelta
 import redis
 import uuid
 import json
-import MySQL
-from mysql.connector import pooling
+import mysql.connector
 from mysql.connector import Error as MySQLError
 from cryptography.fernet import Fernet
-from flask_wtf import CSRFProtect
 
 # 导入配置类
 from config import Config
@@ -34,7 +32,6 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logging.getLogger().setLevel(logging.DEBUG)
-session["verification_time"] = datetime.now(timezone.utc)
 
 app = Flask(__name__)
 
@@ -43,30 +40,8 @@ app.config.from_object(Config)
 
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SECURE_PROXY_SSL_HEADER"] = ("HTTP_X_FORWARDED_PROTO", "https")
-csrf = CSRFProtect(app)
-
-mysql_pool = pooling.MySQLConnectionPool(
-    pool_name="mypool",
-    pool_size=5,
-    host=app.config["MYSQL_HOST"],
-    user=app.config["MYSQL_USER"],
-    password=app.config["MYSQL_PASSWORD"],
-    database=app.config["MYSQL_DB"],
-)
-
-
-def get_db_connection():
-    try:
-        conn = mysql_pool.get_connection()
-        conn = mysql.connection
-        return conn
-    except MySQLError as e:
-        logging.error(f"数据库连接失败: {e}")
-        return None
-
 
 app.config.from_object("config.Config")
-mysql = MySQL(app)
 redis_client = redis.StrictRedis.from_url(app.config["REDIS_URL"])
 
 encryption_key = os.getenv("ENCRYPTION_KEY", Fernet.generate_key().decode())
@@ -139,9 +114,9 @@ def send_verification_email(email, verification_code):
     smtp_user = app.config["SMTP_USER"]
     smtp_password = app.config["SMTP_PASSWORD"]
     email_template = """
-    您的验证码是：{verification_code}。
-    有效期为十分钟，请勿向他人泄露。
-    """
+  您的验证码是：{verification_code}。
+  有效期为十分钟，请勿向他人泄露。
+  """
     msg = MIMEText(
         email_template.format(verification_code=verification_code), "plain", "utf-8"
     )
@@ -163,21 +138,27 @@ def send_verification_email(email, verification_code):
 
 def init_db():
     create_users_sql = """
-     CREATE TABLE IF NOT EXISTS students (
-         username VARCHAR(255) NOT NULL,
-        passwd VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
-        PRIMARY KEY (username)
-     );
- """
-    with get_db_connection() as conn:
-        if conn is not None:
-            try:
-                cursor = conn.cursor()
-                cursor.execute(create_users_sql)
-                conn.commit()
-            except MySQLError as e:
-                logging.error(f"创建表失败: {e}")
+   CREATE TABLE IF NOT EXISTS users (
+       username VARCHAR(255) NOT NULL,
+       passwd VARCHAR(255) NOT NULL,
+       email VARCHAR(255) NOT NULL,
+       PRIMARY KEY (username)
+   );
+   """
+    try:
+        conn = mysql.connector.connect(
+            host=app.config["MYSQL_HOST"],
+            user=app.config["MYSQL_USER"],
+            password=app.config["MYSQL_PASSWORD"],
+            database=app.config["MYSQL_DB"],
+        )
+        cursor = conn.cursor()
+        cursor.execute(create_users_sql)
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except MySQLError as e:
+        logging.error(f"创建表失败: {e}")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -189,7 +170,12 @@ def register():
         session["username"] = username
 
         try:
-            conn = get_db_connection()
+            conn = mysql.connector.connect(
+                host=app.config["MYSQL_HOST"],
+                user=app.config["MYSQL_USER"],
+                password=app.config["MYSQL_PASSWORD"],
+                database=app.config["MYSQL_DB"],
+            )
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
             if cursor.fetchone():
@@ -198,11 +184,13 @@ def register():
                 hashed_passwd = generate_password_hash(passwd)
                 cursor.execute(
                     """
-                  INSERT INTO users (username, passwd, email) VALUES (%s,%s,%s)
-              """,
+                    INSERT INTO users (username, passwd, email) VALUES (%s, %s, %s)
+                    """,
                     (username, hashed_passwd, email),
                 )
                 conn.commit()
+                cursor.close()
+                conn.close()
                 return redirect(url_for("register_success"))
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
@@ -215,16 +203,22 @@ def login():
         username = request.form["username"]
         passwd = request.form["passwd"]
         try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
-                user = cursor.fetchone()
-                if user and check_password_hash(user["passwd"], passwd):
-                    session["username"] = username
-                    # 登录成功，可以进行进一步的操作
-                    return render_template("index.html", username=username)
-                else:
-                    flash("用户名或密码错误，请检查后重新输入!", "danger")
+            conn = mysql.connector.connect(
+                host=app.config["MYSQL_HOST"],
+                user=app.config["MYSQL_USER"],
+                password=app.config["MYSQL_PASSWORD"],
+                database=app.config["MYSQL_DB"],
+            )
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
+            user = cursor.fetchone()
+            if user and check_password_hash(user["passwd"], passwd):
+                session["username"] = username
+                cursor.close()
+                conn.close()
+                return render_template("index.html", username=username)
+            else:
+                flash("用户名或密码错误，请检查后重新输入!", "danger")
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("login.html")
@@ -235,13 +229,22 @@ def index():
     username = None
     if "username" in session:
         try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "SELECT * FROM users WHERE username=%s",
-                    (session["username"],),
-                )
-                user = cursor.fetchone()
+            conn = mysql.connector.connect(
+                host=app.config["MYSQL_HOST"],
+                user=app.config["MYSQL_USER"],
+                password=app.config["MYSQL_PASSWORD"],
+                database=app.config["MYSQL_DB"],
+            )
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(
+                "SELECT * FROM users WHERE username=%s",
+                (session["username"],),
+            )
+            user = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            if user:
+                username = user["username"]
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("login"))
@@ -256,7 +259,12 @@ def forget_password():
         email = request.form["email"]
         session["username"] = username
         try:
-            conn = get_db_connection()
+            conn = mysql.connector.connect(
+                host=app.config["MYSQL_HOST"],
+                user=app.config["MYSQL_USER"],
+                password=app.config["MYSQL_PASSWORD"],
+                database=app.config["MYSQL_DB"],
+            )
             cursor = conn.cursor()
             cursor.execute(
                 "SELECT * FROM users WHERE username=%s AND email=%s",
@@ -267,6 +275,8 @@ def forget_password():
                 verification_code = generate_verification_code()
                 if send_verification_email(user["email"], verification_code):
                     session["verification_code"] = verification_code
+                    cursor.close()
+                    conn.close()
                     return render_template("verify_code_input.html")
                 else:
                     flash("验证码发送失败，请稍后再试。", "danger")
@@ -274,6 +284,11 @@ def forget_password():
                 flash("该用户名或邮箱错误！请检查后重新填写。", "danger")
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
     return render_template("forget_password.html")
 
 
@@ -321,45 +336,30 @@ def reset_password():
         else:
             # 更新数据库中的密码
             try:
-                conn = get_db_connection()
+                conn = mysql.connector.connect(
+                    host=app.config["MYSQL_HOST"],
+                    user=app.config["MYSQL_USER"],
+                    password=app.config["MYSQL_PASSWORD"],
+                    database=app.config["MYSQL_DB"],
+                )
                 cursor = conn.cursor()
                 hashed_password = generate_password_hash(new_password)
 
                 cursor.execute(
                     """
-                          UPDATE users SET passwd=%s WHERE username=%s
-                      """,
+                    UPDATE users SET passwd=%s WHERE username=%s
+                    """,
                     (hashed_password, username),
                 )
                 conn.commit()
             except MySQLError as e:
                 flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+            finally:
+                if conn.is_connected():
+                    cursor.close()
+                    conn.close()
             return redirect(url_for("index"))
     return render_template("reset_password.html")
-
-
-@app.route("/recommendations")
-def recommendations():
-    user_id = session.get("user_id")
-    if user_id:
-        recommended_items = recommend(user_id, item_similarity, user_ratings)
-        return render_template(
-            "recommendations.html", recommended_items=recommended_items
-        )
-    else:
-        return redirect(url_for("login"))
-
-
-@app.route("/recommendations")
-def recommendations():
-    user_id = session.get("user_id")
-    if user_id:
-        recommended_items = recommend(user_id, item_similarity, user_ratings)
-        return render_template(
-            "recommendations.html", recommended_items=recommended_items
-        )
-    else:
-        return redirect(url_for("login"))
 
 
 if __name__ == "__main__":

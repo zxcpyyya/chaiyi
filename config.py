@@ -1,22 +1,22 @@
 import os
+from datetime import timedelta
+
 
 class Config:
-   SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key')
-   MYSQL_HOST = os.getenv('MYSQL_HOST', 'localhost')
-   MYSQL_USER = os.getenv('MYSQL_USER', 'root')
-   MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', 'ldf052821')
-   MYSQL_DB = os.getenv('MYSQL_DB', 'xiaodachuang')
-   REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-   SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.qq.com')
-   SMTP_PORT = os.getenv('SMTP_PORT', 465)
-   SMTP_USER = os.getenv('SMTP_USER', '206284929@qq.com')
-   SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', 'ztznowgbfxxnbiei')
-   VERIFICATION_CODE_EXPIRATION = int(os.getenv('VERIFICATION_CODE_EXPIRATION', 600))
-   PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
-   SESSION_COOKIE_NAME = os.getenv('SESSION_COOKIE_NAME', 'session')
-   SESSION_COOKIE_HTTPONLY = os.getenv('SESSION_COOKIE_HTTPONLY', True)
-   SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', True)
-   APPLICATION_ROOT = os.getenv('APPLICATION_ROOT', '/')
-   LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
-   LOG_FILE = os.getenv('LOG_FILE', 'app.log')
-   ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
+    # Flask配置
+    SESSION_COOKIE_SECURE = True
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
+
+    # 数据库配置
+    MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
+    MYSQL_USER = os.getenv("MYSQL_USER", "root")
+    MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "ldf052821")
+    MYSQL_DB = os.getenv("MYSQL_DB", "xiaodachuang")
+
+    # 邮件服务器配置
+    SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.qq.com")
+    SMTP_USER = os.getenv("SMTP_USER", "206284929@qq.com")
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "ztznowgbfxxnbiei")
+
+    # Redis配置
+    REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
