@@ -35,6 +35,12 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 app = Flask(__name__)
 
+
+def generate_secret_key(length=32):
+    return os.urandom(length).hex()
+
+
+app.secret_key = generate_secret_key()
 # 应用配置
 app.config.from_object(Config)
 
@@ -204,7 +210,7 @@ def register():
                 conn.commit()
                 cursor.close()
                 conn.close()
-                return redirect(url_for("register_success"))
+                return redirect(url_for("index"))
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
     return render_template("register.html")
@@ -222,18 +228,35 @@ def login():
                 password=app.config["MYSQL_PASSWORD"],
                 database=app.config["MYSQL_DB"],
             )
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
             user = cursor.fetchone()
             if user and check_password_hash(user["passwd"], passwd):
                 session["username"] = username
+                # 记录登录历史
+                ip_address = request.remote_addr
+                cursor.execute(
+                    "INSERT INTO login_history (user_id, login_time, ip_address) VALUES (%s, %s, %s)",
+                    (user["id"], datetime.now(timezone.utc), ip_address),
+                )
+                conn.commit()
+                # 更新用户的最后登录时间
+                cursor.execute(
+                    "UPDATE users SET last_login=%s WHERE id=%s",
+                    (datetime.now(timezone.utc), user["id"]),
+                )
+                conn.commit()
                 cursor.close()
                 conn.close()
-                return render_template("index.html", username=username)
+                return redirect(url_for("index"))
             else:
                 flash("用户名或密码错误，请检查后重新输入!", "danger")
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
     return render_template("login.html")
 
 
@@ -265,8 +288,19 @@ def index():
     return render_template("index.html", username=username)
 
 
-@app.route("/forget_password", methods=["GET", "POST"])
-def forget_password():
+@app.route("/get_user_location", methods=['GET',"POST"])
+def get_user_location():
+    if request.method=='GET':
+        return render_template("get_user_location.html")
+    data = request.json
+    lat = data.get("latitude")
+    lng = data.get("longitude")
+    # 这里可以进一步处理用户的位置信息，例如保存到数据库或进行其他操作
+    return jsonify({"status": "success", "message": "Location received"})
+
+
+@app.route("/forget_passwd", methods=["GET", "POST"])
+def forget_passwd():
     if request.method == "POST":
         username = request.form["username"]
         email = request.form["email"]
@@ -302,7 +336,7 @@ def forget_password():
             if conn.is_connected():
                 cursor.close()
                 conn.close()
-    return render_template("forget_password.html")
+    return render_template("forget_passwd.html")
 
 
 @app.route("/verify_code_input", methods=["GET", "POST"])
