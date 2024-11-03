@@ -144,24 +144,97 @@ def send_verification_email(email, verification_code):
 
 def init_db():
     create_users_sql = """
-   CREATE TABLE IF NOT EXISTS users (
-       id INT AUTO_INCREMENT PRIMARY KEY,
-       username VARCHAR(255) NOT NULL UNIQUE,
-       passwd VARCHAR(255) NOT NULL,
-       email VARCHAR(255) NOT NULL,
-       registered_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-       last_login DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-   );
-   """
+    CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 自增主键
+        username VARCHAR(255) NOT NULL UNIQUE, -- 用户名，唯一
+        passwd VARCHAR(255) NOT NULL, -- 加密后的密码
+        email VARCHAR(255) NOT NULL, -- 邮箱地址
+        role VARCHAR(50) NOT NULL DEFAULT 'user', -- 用户角色，默认为普通用户
+        status VARCHAR(50) NOT NULL DEFAULT 'active', -- 用户状态，默认为激活
+        avatar TEXT, -- 用户头像图片链接
+        bio TEXT, -- 个人简介
+        location VARCHAR(255), -- 用户位置
+        registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 注册时间
+        last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 最后登录时间，更新时自动更新
+    );
+    """
     create_login_history_sql = """
-   CREATE TABLE IF NOT EXISTS login_history (
-       id INT AUTO_INCREMENT PRIMARY KEY,
-       user_id INT NOT NULL,
-       login_time DATETIME NOT NULL,
-       ip_address VARCHAR(255) NOT NULL,
-       FOREIGN KEY (user_id) REFERENCES users(id)
-   );
-   """
+    CREATE TABLE IF NOT EXISTS login_history (
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 自增主键
+        user_id INT NOT NULL, -- 用户ID
+        login_time TIMESTAMP NOT NULL, -- 登录时间
+        ip_address VARCHAR(255) NOT NULL, -- 登录IP地址
+        device_type VARCHAR(50), -- 登录设备类型
+        login_result VARCHAR(50) NOT NULL DEFAULT 'success', -- 登录结果，默认为成功
+        location VARCHAR(255), -- 登录地理位置
+        FOREIGN KEY (user_id) REFERENCES users(id) -- 外键关联用户表
+    );
+    """
+    create_dishes_sql = """
+    CREATE TABLE IF NOT EXISTS dishes(
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 自增主键
+        dishes_name VARCHAR(255) NOT NULL UNIQUE, -- 菜品名称，唯一
+        score INT NOT NULL, -- 菜品评分
+        category VARCHAR(255) NOT NULL, -- 菜品分类
+        description TEXT NOT NULL, -- 菜品描述
+        price DECIMAL(10, 2) NOT NULL, -- 菜品价格
+        image_url TEXT, -- 菜品图片链接
+        tags TEXT, -- 菜品标签
+        nutrition_facts TEXT, -- 菜品营养成分
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间，更新时自动更新
+        deleted_at TIMESTAMP NULL DEFAULT NULL -- 删除时间，软删除
+    );
+    """
+    create_stores_sql = """
+    CREATE TABLE IF NOT EXISTS stores(
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 自增主键
+        store_name VARCHAR(255) NOT NULL UNIQUE, -- 商店名称，唯一
+        permoney INT NOT NULL, -- 人均消费
+        commentsnum INT NOT NULL, -- 评论数量
+        description TEXT NOT NULL, -- 商店描述
+        love INT NOT NULL, -- 点赞数量
+        address TEXT, -- 商店地址
+        business_hours TEXT, -- 营业时间
+        rating DECIMAL(3, 2) -- 商店评分
+    );
+    """
+    create_reviews_sql = """
+    CREATE TABLE IF NOT EXISTS reviews (
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 自增主键
+        user_id INT NOT NULL, -- 用户ID
+        dish_id INT NOT NULL, -- 菜品ID
+        rating INT NOT NULL, -- 评论评分
+        comment TEXT NOT NULL, -- 评论内容
+        review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 评论时间
+        FOREIGN KEY (user_id) REFERENCES users(id), -- 外键关联用户表
+        FOREIGN KEY (dish_id) REFERENCES dishes(id) -- 外键关联菜品表
+    );
+    """
+    create_favorites_sql = """
+    CREATE TABLE IF NOT EXISTS favorites (
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 收藏记录唯一标识符
+        user_id INT NOT NULL, -- 关联用户表的ID
+        dish_id INT, -- 关联菜品表的ID
+        store_id INT, -- 关联商店表的ID
+        favorite_time DATETIME DEFAULT CURRENT_TIMESTAMP, -- 收藏时间
+        FOREIGN KEY (user_id) REFERENCES users(id), -- 外键，关联到用户表
+        FOREIGN KEY (dish_id) REFERENCES dishes(id), -- 外键，关联到菜品表
+        FOREIGN KEY (store_id) REFERENCES stores(id) -- 外键，关联到商店表
+    );
+    """
+    create_recommendations_sql="""
+    CREATE TABLE IF NOT EXISTS recommendations (
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 推荐记录唯一标识符
+        user_id INT NOT NULL, -- 关联用户表的ID
+        dish_id INT, -- 关联菜品表的ID
+        store_id INT, -- 关联商店表的ID
+        recommendation_time DATETIME DEFAULT CURRENT_TIMESTAMP, -- 推荐时间
+        FOREIGN KEY (user_id) REFERENCES users(id), -- 外键，关联到用户表
+        FOREIGN KEY (dish_id) REFERENCES dishes(id), -- 外键，关联到菜品表
+        FOREIGN KEY (store_id) REFERENCES stores(id) -- 外键，关联到商店表
+    );
+    """
     try:
         conn = mysql.connector.connect(
             host=app.config["MYSQL_HOST"],
@@ -172,6 +245,11 @@ def init_db():
         cursor = conn.cursor()
         cursor.execute(create_users_sql)
         cursor.execute(create_login_history_sql)
+        cursor.execute(create_dishes_sql)
+        cursor.execute(create_stores_sql)
+        cursor.execute(create_reviews_sql)
+        cursor.execute(create_favorites_sql)
+        cursor.execute(create_recommendations_sql)
         conn.commit()
         cursor.close()
         conn.close()
@@ -187,7 +265,6 @@ def register():
         passwd = request.form["passwd"]
         email = request.form["email"]
         session["username"] = username
-
         try:
             conn = mysql.connector.connect(
                 host=app.config["MYSQL_HOST"],
@@ -199,6 +276,7 @@ def register():
             cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
             if cursor.fetchone():
                 flash("该用户名已被注册，请重新输入用户名", "danger")
+                return render_template("register.html")
             else:
                 hashed_passwd = generate_password_hash(passwd)
                 cursor.execute(
@@ -213,6 +291,7 @@ def register():
                 return redirect(url_for("index"))
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+            return redirect(url_for("register"))
     return render_template("register.html")
 
 
@@ -233,7 +312,6 @@ def login():
             user = cursor.fetchone()
             if user and check_password_hash(user["passwd"], passwd):
                 session["username"] = username
-                # 记录登录历史
                 ip_address = request.remote_addr
                 cursor.execute(
                     "INSERT INTO login_history (user_id, login_time, ip_address) VALUES (%s, %s, %s)",
@@ -251,12 +329,10 @@ def login():
                 return redirect(url_for("index"))
             else:
                 flash("用户名或密码错误，请检查后重新输入!", "danger")
+                return redirect(url_for("login"))
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-        finally:
-            if conn.is_connected():
-                cursor.close()
-                conn.close()
+            return redirect(url_for("login"))
     return render_template("login.html")
 
 
@@ -280,17 +356,16 @@ def index():
             cursor.close()
             conn.close()
             if user:
-                username = user["username"]
+                return render_template("users.html", user=user)
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("login"))
+    return render_template("index.html", user=username)
 
-    return render_template("index.html", username=username)
 
-
-@app.route("/get_user_location", methods=['GET',"POST"])
+@app.route("/get_user_location", methods=["GET", "POST"])
 def get_user_location():
-    if request.method=='GET':
+    if request.method == "GET":
         return render_template("get_user_location.html")
     data = request.json
     lat = data.get("latitude")
@@ -302,9 +377,7 @@ def get_user_location():
 @app.route("/forget_passwd", methods=["GET", "POST"])
 def forget_passwd():
     if request.method == "POST":
-        username = request.form["username"]
         email = request.form["email"]
-        session["username"] = username
         try:
             conn = mysql.connector.connect(
                 host=app.config["MYSQL_HOST"],
@@ -314,8 +387,8 @@ def forget_passwd():
             )
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT * FROM users WHERE username=%s AND email=%s",
-                (username, email),
+                "SELECT * FROM users WHERE email=%s",
+                (email),
             )
             user = cursor.fetchone()
             if user:
@@ -327,11 +400,13 @@ def forget_passwd():
                     return render_template("verify_code_input.html")
                 else:
                     flash("验证码发送失败，请稍后再试。", "danger")
+                    return render_template("forget_passwd.html")
             else:
                 flash("该用户名或邮箱错误！请检查后重新填写。", "danger")
+                return render_template("forget_passwd.html")
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-
+            return redirect(url_for("forget_passwd"))
         finally:
             if conn.is_connected():
                 cursor.close()
@@ -345,7 +420,6 @@ def verify_code():
         entered_code = request.form["verification_code"]
         # 获取当前UTC时间
         current_time_utc = datetime.now(timezone.utc)
-
         # 检查会话中是否有验证码和时间
         if "verification_code" in session and "verification_time" in session:
             verification_code_session = session["verification_code"]
@@ -353,20 +427,21 @@ def verify_code():
             verification_time_session = datetime.fromisoformat(
                 session["verification_time"]
             ).replace(tzinfo=timezone.utc)
-
             # 计算时间差
             time_diff = current_time_utc - verification_time_session
-
             # 检查是否超过10分钟
             if time_diff.total_seconds() > 600:
                 flash("验证码已过期，请重新获取。", "danger")
+                return render_template("forget_passwd.html")
             elif entered_code == verification_code_session:
                 # 验证码正确，继续后续操作
                 return render_template("reset_password.html")
             else:
                 flash("验证码错误，请重新输入。", "danger")
+                return render_template("verify_code_input.html")
         else:
             flash("验证码无效，请重新获取。", "danger")
+            return render_template("forget_passwd.html")
     return render_template("verify_code_input.html")
 
 
@@ -391,7 +466,6 @@ def reset_password():
                 )
                 cursor = conn.cursor()
                 hashed_password = generate_password_hash(new_password)
-
                 cursor.execute(
                     """
                     UPDATE users SET passwd=%s WHERE username=%s
@@ -426,7 +500,6 @@ def profile():
         user = cursor.fetchone()
         cursor.close()
         conn.close()
-
         if user:
             return render_template("profile.html", user=user)
         else:
@@ -441,46 +514,8 @@ def profile():
 def change_password():
     if "username" not in session:
         return redirect(url_for("login"))
-
     if request.method == "POST":
-        old_password = request.form["old_password"]
-        new_password = request.form["new_password"]
-        confirm_password = request.form["confirm_password"]
-
-        if new_password != confirm_password:
-            flash("两次输入的新密码不一致", "danger")
-            return redirect(url_for("change_password"))
-
-        try:
-            conn = mysql.connector.connect(
-                host=app.config["MYSQL_HOST"],
-                user=app.config["MYSQL_USER"],
-                password=app.config["MYSQL_PASSWORD"],
-                database=app.config["MYSQL_DB"],
-            )
-            cursor = conn.cursor(dictionary=True)
-            cursor.execute(
-                "SELECT * FROM users WHERE username=%s", (session["username"],)
-            )
-            user = cursor.fetchone()
-
-            if user and check_password_hash(user["passwd"], old_password):
-                hashed_new_password = generate_password_hash(new_password)
-                cursor.execute(
-                    "UPDATE users SET passwd=%s WHERE username=%s",
-                    (hashed_new_password, session["username"]),
-                )
-                conn.commit()
-                flash("密码修改成功", "success")
-                return redirect(url_for("profile"))
-            else:
-                flash("旧密码错误", "danger")
-                return redirect(url_for("change_password"))
-
-        except MySQLError as e:
-            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-            return redirect(url_for("change_password"))
-
+        return render_template("reset_passwd.html")
     return render_template("change_password.html")
 
 
@@ -488,11 +523,9 @@ def change_password():
 def change_email():
     if "username" not in session:
         return redirect(url_for("login"))
-
     if request.method == "POST":
         new_email = request.form["new_email"]
         password = request.form["password"]
-
         try:
             conn = mysql.connector.connect(
                 host=app.config["MYSQL_HOST"],
@@ -505,7 +538,6 @@ def change_email():
                 "SELECT * FROM users WHERE username=%s", (session["username"],)
             )
             user = cursor.fetchone()
-
             if user and check_password_hash(user["passwd"], password):
                 cursor.execute(
                     "UPDATE users SET email=%s WHERE username=%s",
@@ -517,12 +549,43 @@ def change_email():
             else:
                 flash("密码错误", "danger")
                 return redirect(url_for("change_email"))
-
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("change_email"))
-
     return render_template("change_email.html")
+
+
+@app.route("/notications", methods=["GET", "POST"])
+def notications():
+    if "username" not in session:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        return render_template("notifications.html")
+    return render_template("notications.html")
+
+
+@app.route("/help", methods=["GET", "POST"])
+def help():
+    if "username" not in session:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        return render_template("help.html")
+    return render_template("help.html")
+
+
+@app.route("/user_agreement", methods=["GET", "POST"])
+def user_agreement():
+    return render_template("user_agreement.html")
+
+
+@app.route("/privacy_policy", methods=["GET", "POST"])
+def privacy_policy():
+    return render_template("privacy_policy.html")
+
+
+@app.route("/about", methods=["GET", "POST"])
+def about():
+    return render_template("about.html")
 
 
 if __name__ == "__main__":
