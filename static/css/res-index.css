@@ -1,0 +1,95 @@
+.search-box {
+    height: 100px;
+    width: 100%;
+    background-color: yellow;
+}
+
+.res-top,
+.res-Comments {
+    width: 1200px;
+    height: 250px;
+}
+
+
+
+.res-box {
+    position: absolute;
+    top: 100px;
+    display: flex;
+    /* 使用 Flexbox */
+    flex-direction: column;
+    /* 垂直排列 */
+    align-items: center;
+    /* 水平居中 */
+    width: 100%;
+}
+
+.res-top {
+
+    background-color: aliceblue;
+    display: flex;
+}
+
+.res-top1 {
+    width: 300px;
+    height: 100%;
+    background-color: #666;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    /* 水平居中 */
+}
+
+.res-top2 {
+    width: 900px;
+    height: 100%;
+    background-color: aqua;
+    display: flex;
+    flex-direction: column;
+    /* 垂直排列 */
+}
+
+.res-top1>img {
+    background-color: #666;
+    height: 220px;
+    width: 280px;
+    position: relative;
+    left: 10px;
+}
+
+.res-food {
+    background-color: blue;
+    display: flex;
+    flex-direction: column;
+    /* 垂直排列 */
+    width: 1200px;
+    height: 350px;
+}
+.res-foodtop{
+    height: 15%;
+}
+.res-food1 {
+    height: 42.5%;
+    width: 100%;
+    background-color: rgb(126, 126, 84);
+    display: flex;/*有了这个就可以控制盒子的布局方式，下面两个就是*/
+    justify-content: space-evenly;/*使盒子与盒子之间相同间隔排列*/
+    align-items: center;
+}
+.res-food1 .foodbox{
+    display: flex;
+    flex-direction: column;
+     align-items: center;
+     width: 110px;
+     height: 140px;
+     background-color: #666;
+}
+.foodbox>img{
+width: 100px;
+height: 120px;
+}
+.res-Comments {
+    background-color: yellow;
+}
