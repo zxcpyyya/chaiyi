@@ -9,7 +9,6 @@
 }
 .slides-left-top{
     width: 100%;
-<<<<<<< HEAD
     height: 70%;
 }
 .slides-left-buttom{
@@ -18,11 +17,6 @@
    
 }
 .everydaylove{
-=======
-    height: 20%;
-}
-.slides-left-top-name{
->>>>>>> origin/main
     width: 85%;
     height: 90%;
     background-color: aliceblue;
@@ -32,76 +26,9 @@
     left: 17px;
     font-size: large;
     display: flex;
-<<<<<<< HEAD
     align-items: center; /* 垂直居中 */
     justify-content: center; /* 水平居中 */
 }
 .everydaylove .iconfont{
     font-size:25px;
-=======
-    
-    align-items: center; /* 垂直居中 */
-    justify-content: center; /* 水平居中 */
-}
-.slides-left-center,.slides-left-buttom{
-    height: 40%;
-    display: flex;
-    /*有了这个就可以控制盒子的布局方式，下面两个就是*/
-    justify-content: space-evenly;
-    /*使盒子与盒子之间相同间隔排列*/
-    align-items: center;
-}
-
-.card-container {
-    width: 100px;
-    height: 120px;
-    position: relative;
-    /*相对定位*/
-    perspective: 1000px;
-}
-
-.cover,
-.back {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    /*绝对定位*/
-    backface-visibility: hidden;
-    /*使盒子有背面，并且当旋转到背面的时候不会显示背面元素*/
-    transition: transform .25s ease-in-out;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    border-radius: .4rem;
-    /*圆角*/
-    box-shadow: 0 .2rem .5rem rgba(0, 0, 0, .18);
-}
-.cover {
-    background-image: radial-gradient(circle 853px at 3.3% 5.3%, rgba(29, 231, 240, 0.56) 0%, rgba(247, 92, 246, 0.5) 100.2%);
-    transform: rotatey(0deg);
-    /*翻面为0度*/
-}
-.back {
-    background-image: linear-gradient(90.1deg, rgba(23, 20, 20, 1) 10%, rgba(247, 118, 0, 1) 84.8%);
-    transform: rotatey(-180deg);
-}
-.card-container:hover {
-    box-shadow: 2px 2px 5px #555;
-}
-.card-container.is-flipped .cover {
-    transform: rotatey(180deg);
-}
-.card-container.is-flipped .back {
-    transform: rotatey(0deg);
-}
-.slides-left-center .card-container .cover img{
-    height: 100%;
-    width: 100%;
-}
-
-.slides-left-buttom .card-container .cover img{
-    height: 100%;
-    width: 100%;
->>>>>>> origin/main
 }

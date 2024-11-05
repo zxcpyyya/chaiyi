@@ -1,0 +1,218 @@
+/* 页面基本样式 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+
+}
+
+a {
+    text-decoration: none;
+    /* 去除下划线 */
+    color: #000;
+}
+
+/* 上部区域 */
+.top {
+    height: 40px;
+    width: 100%;
+    background-color: yellow;
+}
+
+.topleft {
+    background-color: #2980b9;
+    width: 100px;
+    position: relative;
+    top: 10px;
+}
+
+
+
+
+
+.container,
+.container2 {
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 32px;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 24px;
+    color: #34495e;
+    margin-bottom: 10px;
+}
+
+.submit {
+    width: 440px;
+    height: 50px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.submit:hover{
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 1);
+}
+#submit:active {
+    transform: scale(0.95); /* 点击时缩小 */
+}
+/* 用户基本信息样式 */
+.section {
+    background-color: #fff;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sectiontop {
+    display: flex;
+}
+
+p,
+ul {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.history-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.history-list li:last-child {
+    border-bottom: none;
+}
+
+.section .title {
+    font-weight: bold;
+}
+
+.sectiontop1 {
+    width: 150px;
+}
+
+.sectiontop img {
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+}
+
+/* 二级菜单样式 */
+
+
+/* 菜品和店家排列方式 */
+.fs-box {
+    display: flex;
+}
+
+/* 每个元素的大小 */
+.hwbox {
+    height: 200px;
+    width: 100px;
+    background-color: yellow;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+    /* 垂直排列元素 */
+    align-items: center;
+}
+
+.food-image>img,
+.store-image>img {
+    height: 100px;
+    width: 80px;
+    position: relative;
+    top: 50px;
+}
+
+/* 左边导航栏 */
+.profileleft {
+    position: absolute;
+    height: 100%;
+    width: 100px;
+    background-color: #fff;
+}
+
+.container2 {
+    display: none;
+}
+
+.Informa,
+.manage {
+    height: 50px;
+    width: 100%;
+    position: relative;
+    top: 40px;
+    display: flex;
+    justify-content: center;
+    /* 水平居中 */
+    align-items: center;
+    /* 垂直居中 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.Informa:hover,
+.manage:hover {
+    background-color: #2980b9;
+}
+
+
+
+/* 喜欢收藏 */
+
+.section2 {
+    background-color: #fff;
+}
+
+.menu {
+    height: 50px;
+    background-color: #2980b9;
+    display: flex;
+}
+
+.love,
+.shoucang {
+    width: 100px;
+    height: 60%;
+    background-color: green;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    /* 水平居中 */
+    align-items: center;
+    /* 垂直居中 */
+    line-height: 50px;
+    color: white;
+    padding: 10px;
+    margin: 0 5px;
+    border-radius: 4px;
+}
+
+.love:hover,
+.shoucang:hover {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.love-box {
+    display: block;
+}
+
+.shoucang-box {
+    display: none;
+}

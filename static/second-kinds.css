@@ -86,11 +86,8 @@
 .navba .nav ul > li:nth-child(2):hover ~ .underline {
     left: 150px; /* 地区分类 */
     background-color: #cc3333; /* 下划线颜色 */
-<<<<<<< HEAD
 }
 .nav > ul > li > ol:first-of-type {
     position: absolute;
    left: 150px;
-=======
->>>>>>> origin/main
 }

@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 .windows-buttom {
     position: absolute;
     top: 474px;
-=======
-.windows-buttom{
-    position: absolute;
-    top: 474px ;
->>>>>>> origin/main
     flex: block;
 
 }
@@ -16,11 +10,7 @@
     display: flex;
     width: 1296px;
     height: 200px;
-<<<<<<< HEAD
     background-color: aliceblue;
-=======
-   background-color: aliceblue;
->>>>>>> origin/main
 }
 
 .container2-1 {
@@ -29,11 +19,6 @@
     top: 0;
     width: 220px;
     height: 200px;
-<<<<<<< HEAD
-
-=======
-  
->>>>>>> origin/main
 }
 
 .container2>a>.container2-1 img {
@@ -45,11 +30,7 @@
     width: 200px;
 }
 
-<<<<<<< HEAD
 .container2-2 {
-=======
-.container2-2{
->>>>>>> origin/main
     position: relative;
     width: 1080px;
     height: 200px;
@@ -59,34 +40,21 @@
 .container2-2>a {
     text-decoration: none;
 }
-<<<<<<< HEAD
 
 .name {
-=======
-.name{
->>>>>>> origin/main
     position: relative;
     top: 10px;
     left: 10px;
 }
-<<<<<<< HEAD
 
 /* 种类和位置信息 */
 .kinds {
-=======
-/* 种类和位置信息 */
-.kinds{
->>>>>>> origin/main
     position: relative;
     top: 10px;
     left: 10px;
 }
-<<<<<<< HEAD
 
 .play {
-=======
-.play{
->>>>>>> origin/main
     position: relative;
     top: 10px;
     left: 15px;
@@ -95,7 +63,6 @@
 
 /* 评论与人均消费 */
 .stats {
-<<<<<<< HEAD
     height: 100px;
     display: flex;
     align-items: center;
@@ -108,27 +75,11 @@
     margin-right: 15px;
 }
 
-=======
-             height: 100px;
-            display: flex;
-            align-items: center;
-            font-size: 18px;
-            position: relative;
-            left: 15px;
-        }
-.stat-item {
-    margin-right: 15px;
-} 
->>>>>>> origin/main
 /* 五角星评分 */
 .score {
     position: relative;
     width: 100px;
-<<<<<<< HEAD
     height: 20px;
-=======
-    height: 20px; 
->>>>>>> origin/main
     background-color: #f0f0f0;
     overflow: hidden;
 }
@@ -140,35 +91,23 @@
     height: 100%;
     background-color: orange;
     transition: width 0.5s;
-<<<<<<< HEAD
     z-index: 1;
     /* 背景在最底层 */
-=======
-    z-index: 1; /* 背景在最底层 */
->>>>>>> origin/main
 }
 
 .stars {
     display: flex;
     align-items: center;
     position: relative;
-<<<<<<< HEAD
     z-index: 2;
     /* 星星在背景之上 */
-=======
-    z-index: 2; /* 星星在背景之上 */
->>>>>>> origin/main
     height: 100%;
     width: 100%;
 }
 
 .star {
-<<<<<<< HEAD
     width: 16%;
     /* 调整星星宽度，留出分隔符的空间 */
-=======
-    width: 16%; /* 调整星星宽度，留出分隔符的空间 */
->>>>>>> origin/main
     height: 100%;
     background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>') no-repeat center;
     background-size: contain;
@@ -180,7 +119,6 @@
 }
 
 .separator {
-<<<<<<< HEAD
     width: 2px;
     /* 分隔符宽度 */
     height: 60%;
@@ -205,26 +143,10 @@
     cursor: pointer;
     /* 鼠标悬停效果 */
     position: absolute;
-=======
-    width: 2px; /* 分隔符宽度 */
-    height: 60%; /* 分隔符高度 */
-    background-color: white; /* 分隔符颜色 */
-    margin: 0 2%; /* 左右间距 */
-}
-
-/* 爱心效果 */
-.icon-a-ziyuan13s {
-    font-size: 100px; /* 图标大小 */
-    color: gray; /* 默认颜色 */
-    transition: color 0.3s; /* 平滑过渡效果 */
-    cursor: pointer; /* 鼠标悬停效果 */
-    position:absolute;
->>>>>>> origin/main
     top: 15px;
     left: 170px;
 }
 
-<<<<<<< HEAD
 .icon-shoucang1 {
    
     /* 图标大小 */
@@ -238,5 +160,3 @@
     top: 7px;
     left: 200px;
 }
-=======
->>>>>>> origin/main

@@ -1,0 +1,42 @@
+span {
+
+    position: relative;
+    left: 40px;
+    top: 40px;
+}
+
+span>p {
+    font-size: large;
+}
+
+button {
+    height: 50px;
+    width: 300px;
+    position: relative;
+    top: 100px;
+    left: 100px;
+}
+
+.passwords>.tishi>P {
+
+    color: brown;
+}
+
+.passwords {
+    position: relative;
+    top: 70px;
+    left: 40px;
+    position: relative;
+    display: block;
+
+}
+
+.tishi {
+    visibility: hidden;
+}
+
+.error {
+    position: relative;
+    top: 80px;
+    left: 40px;
+}

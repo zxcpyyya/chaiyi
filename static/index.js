@@ -25,11 +25,6 @@ document.getElementById('kinds1').onclick = function(event) {
     }
 };
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/main
 document.getElementById('kinds2').onclick = function(event) {
     event.preventDefault(); // 阻止链接的默认行为
    if(document.getElementById('placekinds2').style.display === "none"){ 
@@ -42,18 +37,9 @@ document.getElementById('kinds2').onclick = function(event) {
         document.getElementById('rightkinds2').style.display = "flex";
     }
 };
-<<<<<<< HEAD
 
 
 
-=======
-// 翻牌效果
-const cardContainers = document.querySelectorAll('.card-container');//选择所有名字叫做.card-container的元素，会形成一个元素数组
-cardContainers.forEach(cardContainer => //forEach相当于迭代操作，使它可以遍历元素组，cardContainer=>是箭头函数，表示每次迭代时要进行的操作
-    cardContainer.addEventListener('click',function(){
-             this.classList.toggle('is-flipped');//把原来的元素变成了is-flipped
-        }))
->>>>>>> origin/main
  // 以下是轮播图自动切换效果
 // 获取所有的radio按钮
 const radios = document.querySelectorAll('input[name="control"]');
@@ -110,25 +96,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 爱心效果
 var aixin = document.getElementsByClassName('icon-a-ziyuan13s')[0]; 
-<<<<<<< HEAD
 var shoucang = document.getElementsByClassName('icon-shoucang1')[0];
-=======
-
->>>>>>> origin/main
 aixin.addEventListener("click", function(){
     if (aixin.style.color === "gray") {
         aixin.style.color = "red";
     } else {
         aixin.style.color = "gray"; 
 }
-<<<<<<< HEAD
 });
+//收藏
 shoucang.addEventListener("click", function(){
     if (shoucang.style.color === "gray") {
         shoucang.style.color = "yellow";
     } else {
         shoucang.style.color = "gray"; 
 }
-=======
->>>>>>> origin/main
 });
