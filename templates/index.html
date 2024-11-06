@@ -36,7 +36,7 @@
    <div class="windows-top1">
       <a href="{{url_for('login')}}">登录</a>
       <a href="{{url_for('login')}}">注册</a>
-      <a href="{{url_for('notications')}}">消息通知</a>
+      <a href="">消息通知</a>
       <a href="{{url_for('profile')}}">个人中心</a>
       <a href="{{url_for('help')}}">帮助</a>
    </div>
@@ -230,15 +230,15 @@
 
       <!-- 菜品采样1 -->
       <div class="windows-buttom">
-         {%for item in items %}
+         {% for store in stores %}
          <div class="container2">
             <a href="index1.html">
                <div class="container2-1">
                   <img src="" alt="">
                </div>
                <div class="container2-2">
-                  <a class="name" href="" name="gotostore">
-                     <h3 name="storename">item.storename</h3>
+                  <a class="name"href="{{ url_for('store_detail', store_id=store['id']) }} name="gotostore">
+                     <h3 name="storename">{{ store['store_name'] }}</h3>
                   </a>
 <<<<<<< HEAD:template/index.html
                   <!-- 爱心和收藏 -->
