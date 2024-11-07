@@ -149,8 +149,6 @@ def init_db():
         username VARCHAR(255) NOT NULL UNIQUE, -- 用户名，唯一
         passwd VARCHAR(255) NOT NULL, -- 加密后的密码
         email VARCHAR(255) NOT NULL, -- 邮箱地址
-        role VARCHAR(50) NOT NULL DEFAULT 'user', -- 用户角色，默认为普通用户
-        status VARCHAR(50) NOT NULL DEFAULT 'active', -- 用户状态，默认为激活
         avatar TEXT, -- 用户头像图片链接
         bio TEXT, -- 个人简介
         location VARCHAR(255), -- 用户位置
@@ -160,14 +158,14 @@ def init_db():
     """
     create_login_history_sql = """
     CREATE TABLE IF NOT EXISTS login_history (
-        id INT AUTO_INCREMENT PRIMARY KEY, -- 自增主键
-        user_id INT NOT NULL, -- 用户ID
-        login_time TIMESTAMP NOT NULL, -- 登录时间
-        ip_address VARCHAR(255) NOT NULL, -- 登录IP地址
-        device_type VARCHAR(50), -- 登录设备类型
+        id INT AUTO_INCREMENT PRIMARY KEY,           -- 自增主键
+        username VARCHAR(255) NOT NULL,              -- 用户名
+        login_time TIMESTAMP NOT NULL,               -- 登录时间
+        ip_address VARCHAR(255) NOT NULL,            -- 登录IP地址
+        device_type VARCHAR(50),                     -- 登录设备类型
         login_result VARCHAR(50) NOT NULL DEFAULT 'success', -- 登录结果，默认为成功
-        location VARCHAR(255), -- 登录地理位置
-        FOREIGN KEY (user_id) REFERENCES users(id) -- 外键关联用户表
+        location VARCHAR(255),                       -- 登录地理位置
+        FOREIGN KEY (username) REFERENCES users(username) -- 外键关联用户名
     );
     """
     create_dishes_sql = """
@@ -278,6 +276,7 @@ def get_db_connection():
             password=app.config["MYSQL_PASSWORD"],
             database=app.config["MYSQL_DB"],
         )
+        print("数据库连接成功")
         return conn
     except MySQLError as e:
         logging.error(f"数据库连接失败: {e}")
@@ -322,30 +321,24 @@ def login():
         username = request.form["username"]
         passwd = request.form["passwd"]
         try:
-            conn = get_db_connection()
-            cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
-            user = cursor.fetchone()
-            if user and check_password_hash(user["passwd"], passwd):
-                session["username"] = username
-                ip_address = request.remote_addr
+            with get_db_connection() as conn:
+                cursor = conn.cursor(dictionary=True)
                 cursor.execute(
-                    "INSERT INTO login_history (user_id, login_time, ip_address) VALUES (%s, %s, %s)",
-                    (user["id"], datetime.now(timezone.utc), ip_address),
+                    "SELECT id, passwd FROM users WHERE username=%s", (username,)
                 )
-                conn.commit()
-                # 更新用户的最后登录时间
-                cursor.execute(
-                    "UPDATE users SET last_login=%s WHERE id=%s",
-                    (datetime.now(timezone.utc), user["id"]),
-                )
-                conn.commit()
-                cursor.close()
-                conn.close()
-                return redirect(url_for("index"))
-            else:
-                flash("用户名或密码错误，请检查后重新输入!", "danger")
-                return redirect(url_for("login"))
+                user = cursor.fetchone()
+                if user and check_password_hash(user["passwd"], passwd):
+                    session["username"] = username
+                    ip_address = request.remote_addr
+                    cursor.execute(
+                        "INSERT INTO login_history (username, login_time, ip_address) VALUES (%s, %s, %s)",
+                        (username, datetime.now(timezone.utc), ip_address),
+                    )
+                    conn.commit()
+                    return redirect(url_for("index"))
+                else:
+                    flash("用户名或密码错误，请检查后重新输入!", "danger")
+                    return redirect(url_for("login"))
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("login"))
@@ -367,7 +360,7 @@ def index():
             cursor.close()
             conn.close()
             if user:
-                return render_template("users.html", user=user)
+                return render_template("index.html", user=user)
         except MySQLError as e:
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("login"))
@@ -411,12 +404,9 @@ def forget_passwd():
                 flash("该用户名或邮箱错误！请检查后重新填写。", "danger")
                 return render_template("forget_passwd.html")
         except MySQLError as e:
+            logging.error(f"数据库错误: {e}")
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("forget_passwd"))
-        finally:
-            if conn.is_connected():
-                cursor.close()
-                conn.close()
     return render_template("forget_passwd.html")
 
 
@@ -465,7 +455,7 @@ def reset_password():
             # 更新数据库中的密码
             try:
                 conn = get_db_connection()
-                cursor = conn.cursor()
+                cursor = conn.cursor(dictionary=True)
                 hashed_password = generate_password_hash(new_password)
                 cursor.execute(
                     """
@@ -681,6 +671,11 @@ def everdaylove():
 @app.route("/user_agreement")
 def user_agreement():
     return render_template("user_agreement.html")
+
+
+@app.route("/notications")
+def notications():
+    return render_template("notications.html")
 
 
 @app.route("/privacy_policy")

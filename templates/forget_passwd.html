@@ -52,11 +52,11 @@
     <div class="container1">
         <div class="main">
         <span>
-            <p>邮箱:</p>
+            <p>请输入您的邮箱:</p>
         </span>
-      <form action="">
+      <form action="/forget_passwd" method="POST">
         <div class="passwords">
-            <input type="email" id="email" placeholder="邮箱地址" name="email"required />
+            <input type="text" id="email" placeholder="邮箱地址" name="email"required />
         </div>
         <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
         <button type="submit" id="submit">发送验证码</button>
