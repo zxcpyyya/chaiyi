@@ -162,8 +162,6 @@ def init_db():
         username VARCHAR(255) NOT NULL,              -- 用户名
         login_time TIMESTAMP NOT NULL,               -- 登录时间
         ip_address VARCHAR(255) NOT NULL,            -- 登录IP地址
-        device_type VARCHAR(50),                     -- 登录设备类型
-        login_result VARCHAR(50) NOT NULL DEFAULT 'success', -- 登录结果，默认为成功
         location VARCHAR(255),                       -- 登录地理位置
         FOREIGN KEY (username) REFERENCES users(username) -- 外键关联用户名
     );
@@ -178,8 +176,6 @@ def init_db():
         price DECIMAL(10, 2) NOT NULL, -- 菜品价格
         image_url TEXT, -- 菜品图片链接
         tags TEXT, -- 菜品标签
-        nutrition_facts TEXT, -- 菜品营养成分
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 创建时间
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间，更新时自动更新
         deleted_at TIMESTAMP NULL DEFAULT NULL -- 删除时间，软删除
     );
@@ -251,6 +247,7 @@ def init_db():
             user=app.config["MYSQL_USER"],
             password=app.config["MYSQL_PASSWORD"],
             database=app.config["MYSQL_DB"],
+            auth_plugin='mysql_native_password',
         )
         cursor = conn.cursor()
         cursor.execute(create_users_sql)
@@ -259,6 +256,7 @@ def init_db():
         cursor.execute(create_stores_sql)
         cursor.execute(create_reviews_sql)
         cursor.execute(create_favorites_sql)
+        cursor.execute(create_likes_sql)
         cursor.execute(create_recommendations_sql)
         conn.commit()
         cursor.close()
@@ -275,6 +273,7 @@ def get_db_connection():
             user=app.config["MYSQL_USER"],
             password=app.config["MYSQL_PASSWORD"],
             database=app.config["MYSQL_DB"],
+            auth_plugin='mysql_native_password',
         )
         print("数据库连接成功")
         return conn
@@ -317,32 +316,34 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        passwd = request.form["passwd"]
-        try:
-            with get_db_connection() as conn:
-                cursor = conn.cursor(dictionary=True)
-                cursor.execute(
-                    "SELECT id, passwd FROM users WHERE username=%s", (username,)
-                )
-                user = cursor.fetchone()
-                if user and check_password_hash(user["passwd"], passwd):
-                    session["username"] = username
-                    ip_address = request.remote_addr
-                    cursor.execute(
-                        "INSERT INTO login_history (username, login_time, ip_address) VALUES (%s, %s, %s)",
-                        (username, datetime.now(timezone.utc), ip_address),
-                    )
-                    conn.commit()
-                    return redirect(url_for("index"))
-                else:
-                    flash("用户名或密码错误，请检查后重新输入!", "danger")
-                    return redirect(url_for("login"))
-        except MySQLError as e:
-            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-            return redirect(url_for("login"))
-    return render_template("login.html")
+   if request.method == "POST":
+       username = request.form["username"]
+       passwd = request.form["passwd"]
+       try:
+           conn = get_db_connection()
+           cursor = conn.cursor(dictionary=True)
+           cursor.execute(
+               "SELECT id, passwd FROM users WHERE username=%s", (username,)
+           )
+           user = cursor.fetchone()
+           if user and check_password_hash(user["passwd"], passwd):
+               session["username"] = username
+               ip_address = request.remote_addr
+               cursor.execute(
+                   "INSERT INTO login_history (username, login_time, ip_address) VALUES (%s, %s, %s)",
+                   (username, datetime.now(timezone.utc), ip_address),
+               )
+               conn.commit()
+               cursor.close()
+               conn.close()
+               return redirect(url_for("index"))
+           else:
+               flash("用户名或密码错误，请检查后重新输入!", "danger")
+               return redirect(url_for("login"))
+       except MySQLError as e:
+           flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+           return redirect(url_for("login"))
+   return render_template("login.html")
 
 
 @app.route("/")
