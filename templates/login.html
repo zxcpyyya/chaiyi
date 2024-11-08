@@ -9,7 +9,6 @@
 </head>
 
 <body>
-
     <div class="navbar">
         <a href="user_agreement.html" class="nav-item">用户协议</a>
         <a href="privacy_policy.html" class="nav-item">隐私政策</a>
@@ -25,7 +24,7 @@
             <form class="password11" action="/login" method="POST">
                 <input placeholder="用户名" type="text" name="username" required />
                 <input placeholder="密码" type="password" id="password" name="passwd" required />
-                <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
+                <div class="error"class="error3">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
                 <button type="submit" id="submit"class="submit">登 录</button>
             </form>
             <p class="forgot-pass"><a href="{{url_for('forget_passwd')}}">忘记密码？</a></p>
@@ -51,7 +50,8 @@
                     <input placeholder="用户名" type="text" name="username" required />
                     <input placeholder="邮箱" type="email" name="email" required />
                     <input placeholder="密码" type="password" name="passwd" required />
-                    <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
+<div class="error"id="error2">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
+<div>
                     <div>
                         <button type="submit" id="submit" class="submit">注 册</button>
                     </div>

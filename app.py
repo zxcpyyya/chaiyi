@@ -72,6 +72,7 @@ def after_request(response):
         }
         encrypted_data = encrypt_data(json.dumps(session_data))
         redis_client.set(session_id, encrypted_data)
+    session.pop("_flashes", None)
     return response
 
 
@@ -104,7 +105,7 @@ def generate_verification_code():
     return "".join([str(random.randint(0, 9)) for _ in range(6)])
 
 
-nickname = "智慧教育平台"
+nickname = "cookedman"
 email_address = "206284929@qq.com"
 
 # 对昵称进行Base64编码
@@ -160,9 +161,8 @@ def init_db():
     CREATE TABLE IF NOT EXISTS login_history (
         id INT AUTO_INCREMENT PRIMARY KEY,           -- 自增主键
         username VARCHAR(255) NOT NULL,              -- 用户名
-        login_time TIMESTAMP NOT NULL,               -- 登录时间
+        login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,               -- 登录时间
         ip_address VARCHAR(255) NOT NULL,            -- 登录IP地址
-        location VARCHAR(255),                       -- 登录地理位置
         FOREIGN KEY (username) REFERENCES users(username) -- 外键关联用户名
     );
     """
@@ -247,7 +247,7 @@ def init_db():
             user=app.config["MYSQL_USER"],
             password=app.config["MYSQL_PASSWORD"],
             database=app.config["MYSQL_DB"],
-            auth_plugin='mysql_native_password',
+            auth_plugin="mysql_native_password",
         )
         cursor = conn.cursor()
         cursor.execute(create_users_sql)
@@ -273,7 +273,7 @@ def get_db_connection():
             user=app.config["MYSQL_USER"],
             password=app.config["MYSQL_PASSWORD"],
             database=app.config["MYSQL_DB"],
-            auth_plugin='mysql_native_password',
+            auth_plugin="mysql_native_password",
         )
         print("数据库连接成功")
         return conn
@@ -316,34 +316,39 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-   if request.method == "POST":
-       username = request.form["username"]
-       passwd = request.form["passwd"]
-       try:
-           conn = get_db_connection()
-           cursor = conn.cursor(dictionary=True)
-           cursor.execute(
-               "SELECT id, passwd FROM users WHERE username=%s", (username,)
-           )
-           user = cursor.fetchone()
-           if user and check_password_hash(user["passwd"], passwd):
-               session["username"] = username
-               ip_address = request.remote_addr
-               cursor.execute(
-                   "INSERT INTO login_history (username, login_time, ip_address) VALUES (%s, %s, %s)",
-                   (username, datetime.now(timezone.utc), ip_address),
-               )
-               conn.commit()
-               cursor.close()
-               conn.close()
-               return redirect(url_for("index"))
-           else:
-               flash("用户名或密码错误，请检查后重新输入!", "danger")
-               return redirect(url_for("login"))
-       except MySQLError as e:
-           flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
-           return redirect(url_for("login"))
-   return render_template("login.html")
+    if request.method == "POST":
+        username = request.form["username"]
+        passwd = request.form["passwd"]
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(
+                "SELECT id, passwd FROM users WHERE username=%s", (username,)
+            )
+            user = cursor.fetchone()
+            if user and check_password_hash(user["passwd"], passwd):
+                session["username"] = username
+                ip_address = request.remote_addr
+                current_time_utc = datetime.now(timezone.utc)
+                cursor.execute(
+                    "INSERT INTO login_history (username, login_time, ip_address) VALUES (%s, %s, %s)",
+                    (username, current_time_utc, ip_address),
+                )
+                cursor.execute(
+                    "UPDATE users SET last_login = %s WHERE username = %s",
+                    (current_time_utc, username),
+                )
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return redirect(url_for("index"))
+            else:
+                flash("用户名或密码错误，请检查后重新输入!", "danger")
+                return redirect(url_for("login"))
+        except MySQLError as e:
+            flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
+            return redirect(url_for("login"))
+    return render_template("login.html")
 
 
 @app.route("/")
@@ -385,10 +390,10 @@ def forget_passwd():
         email = request.form["email"]
         try:
             conn = get_db_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
             cursor.execute(
                 "SELECT * FROM users WHERE email=%s",
-                (email),
+                (email,),
             )
             user = cursor.fetchone()
             if user:
@@ -405,7 +410,6 @@ def forget_passwd():
                 flash("该用户名或邮箱错误！请检查后重新填写。", "danger")
                 return render_template("forget_passwd.html")
         except MySQLError as e:
-            logging.error(f"数据库错误: {e}")
             flash(f"数据库错误: {e.args[0] if e.args else e}", "danger")
             return redirect(url_for("forget_passwd"))
     return render_template("forget_passwd.html")
@@ -430,7 +434,7 @@ def verify_code():
             if time_diff.total_seconds() > 600:
                 flash("验证码已过期，请重新获取。", "danger")
                 return render_template("forget_passwd.html")
-            elif entered_code == verification_code_session:
+            if entered_code == verification_code_session:
                 # 验证码正确，继续后续操作
                 return render_template("reset_password.html")
             else:
@@ -663,10 +667,10 @@ def help():
     return render_template("help.html")
 
 
-@app.route("/everdaylove")
-def everdaylove():
+@app.route("/everydaylove")
+def everydaylove():
     # 这里是路由对应的视图函数
-    return render_template("help.html")
+    return render_template("everydaylove.html")
 
 
 @app.route("/user_agreement")
@@ -687,6 +691,7 @@ def privacy_policy():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
 
 
 if __name__ == "__main__":
