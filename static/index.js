@@ -104,7 +104,6 @@ aixin.addEventListener("click", function(){
         aixin.style.color = "gray"; 
 }
 });
-//收藏
 shoucang.addEventListener("click", function(){
     if (shoucang.style.color === "gray") {
         shoucang.style.color = "yellow";
@@ -112,3 +111,64 @@ shoucang.addEventListener("click", function(){
         shoucang.style.color = "gray"; 
 }
 });
+
+
+
+// 五角星评分系统
+const rating = 4;  
+const background = document.querySelector('#star-rating .background');
+const stars = document.querySelectorAll('#star-rating .star');
+const starPercentage = 100 / stars.length;
+const fillPercentage = (rating / 5) * 100; 
+background.style.width = `${fillPercentage}%`;
+
+stars.forEach((star, index) => {
+    if (index < rating) {
+        star.classList.add('filled');
+    } else {
+        star.classList.remove('filled');
+    }
+});
+
+// cookedman区域切换
+document.getElementById('menu').addEventListener('click', function(event) {
+    if (event.target && event.target.classList.contains('kind')) {
+      // 获取点击的菜系名称
+      const kindName = event.target.getAttribute('name');
+      // 更新页面内容
+      const contentDiv = document.getElementById('word');
+      const cookedman = document.getElementById('cookedman');
+      cookedman.style.display="none";
+      contentDiv.style.display="flex";
+
+      // 根据菜系名称修改内容
+      switch(kindName) {
+        case 'chuan':
+          contentDiv.innerHTML = '川';
+          break;
+        case 'beijin':
+          contentDiv.innerHTML = '北京';
+          break;
+        case 'dongbei':
+          contentDiv.innerHTML = '东北';
+          break;
+        case 'xinjiang':
+          contentDiv.innerHTML = "新";
+          break;
+        case 'yue':
+          contentDiv.innerHTML = '粤';
+          break;
+        case 'lu':
+          contentDiv.innerHTML = '鲁';
+          break;
+        case 'qian':
+          contentDiv.innerHTML = '黔';
+          break;
+        case 'jiangzhe':
+          contentDiv.innerHTML = '江浙';
+          break;
+                   default:
+          contentDiv.innerHTML = '';
+      }
+    }
+  });

@@ -1,7 +1,5 @@
 
 
-<<<<<<< HEAD
-=======
     var error2 = document.getElementById('error2'); 
     var error3 = document.getElementById('error3'); 
 
@@ -16,4 +14,3 @@ document.querySelector('.img__btn').addEventListener('click', function() {
      }
     });
     
->>>>>>> origin/main

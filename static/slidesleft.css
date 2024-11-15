@@ -32,3 +32,33 @@
 .everydaylove .iconfont{
     font-size:25px;
 }
+.slides-left-top{ 
+    position: relative;
+    top: 10px;
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+.slides-left-top .word{
+    width: 85%;
+    height: 90%;
+    display: none;
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    font-size: 100px;
+    background-color: aliceblue;
+    border-radius: 10px;
+}
+.slides-left-top>img{
+    width: 85%;
+    height: 90%;
+    border-radius: 10px;
+}
+.redtip{
+    position: relative;
+    right: 10px;
+    height: 12px;
+    width: 12px;
+    background-color: brown;
+    border-radius: 50%;
+}

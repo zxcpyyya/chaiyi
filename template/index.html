@@ -33,7 +33,7 @@
    <div class="windows-top1">
       <a href="{{url_for('login')}}">登录</a>
       <a href="{{url_for('login')}}">注册</a>
-      <a href="">消息通知</a>
+      <a href="{{url_for('notications')}}">消息通知</a>
       <a href="{{url_for('profile')}}">个人中心</a>
       <a href="{{url_for('help')}}">帮助</a>
    </div>
@@ -43,7 +43,7 @@
    <div class="container1">
       <!-- 搜索框 -->
       <div class="windows-search">
-         <input class="search1" type="text" name="search" required>
+         <input class="search1" type="text" name="search" required>`
          <a class="search-btn" href="#" name="searchbutton">
             <span class="iconfont icon-sousuo"></span>
          </a>
@@ -53,17 +53,13 @@
       <div class="windows-top3">
          <!-- 轮播图左侧 -->
          <div class="slides-left">
-            <div class="slides-left-top"></div>
-            <div class="slides-left-buttom">
-<<<<<<< HEAD:template/index.html
-             <a href="{{url_for('everdaylove')}}">  <div class="everydaylove">每日推荐<span class="iconfont icon-jinru"></span></div></a>
-            </div>       
-=======
-               <a href="{{url_for('everydaylove')}}">
-                  <div class="everydaylove">每日推荐<span class="iconfont icon-jinru"></span></div>
-               </a>
+            <div class="slides-left-top">
+               <img src="../static/img/111111.png" alt=""id="cookedman">
+               <div class="word" id="word"></div>
             </div>
->>>>>>> origin/main:templates/index.html
+            <div class="slides-left-buttom">
+             <a href="{{url_for('everdaylove')}}">  <div class="everydaylove"><div class="redtip"></div>每日推荐<span class="iconfont icon-jinru"></span></div></a>
+            </div>       
          </div>
          <!--轮播图  -->
          <div class="slideshow-center">
@@ -89,16 +85,15 @@
                </div>
             </div>
             <div class="center-bank1">
-               <a href="">
+               <a href="{{ url_for('profile') }}">
                   <div class="collect"><span class="iconfont icon-shoucang"></span><br><span class="tubiao">
-<<<<<<< HEAD:template/index.html
                收藏</span></div></a>
             </a>
-            <a href="">
+            <a href="{{url_for('profile')}}">
                <div class="love"><span class="iconfont icon-xihuan"></span><br><span class="tubiao">喜欢</span>
                </div>
             </a>
-            <a href="">
+            <a href="{{ url_for('profile') }}">
                <div class="self-info"><span class="iconfont icon-gerenxinxi"></span><br><span class="tubiao">个人信息</span>
                </div>
             </a>
@@ -132,18 +127,19 @@
       <div class="second-kinds">
          <div class="navba">
             <div class="nav">
-               <ul>
+               <ul id="menu">
                   <li>
                      <a href="#">菜品分类</a>
                      <ol>
-                        <li><a href="#" name="chuan">川菜</a></li>
-                        <li><a href="#" name="beijin">北京菜</a></li>
-                        <li><a href="#" name="dongbei">东北菜</a></li>
-                        <li><a href="#" name="xinjiang">新疆菜</a></li>
-                        <li><a href="#" name="yue">粤菜</a></li>
-                        <li><a href="#" name="lu">鲁菜</a></li>
-                        <li><a href="#" name="qian">黔菜</a></li>
-                        <li><a href="#" name="jianzhe">江浙菜</a></li>
+                        <li><a href="#" name="chuan"class="kind">川菜</a></li>
+                        <li><a href="#" name="beijin"class="kind">北京菜</a></li>
+                        <li><a href="#" name="dongbei"class="kind">东北菜</a></li>
+                        <li><a href="#" name="xinjiang"class="kind">新疆菜</a></li>
+                        <li><a href="#" name="yue"class="kind">粤菜</a></li>
+                        <li><a href="#" name="lu"class="kind">鲁菜</a></li>
+                        <li><a href="#" name="qian"class="kind">黔菜</a></li>
+                        <li><a href="#" name="jiangzhe"class="kind">江浙菜</a></li>
+                        
                      </ol>
                   </li>
                   <li>
@@ -160,6 +156,7 @@
                         <li><a href="#" name="liuhequ">六合区</a></li>
                         <li><a href="#" name="lishui">溧水区</a></li>
                         <li><a href="#" name="gaochun">高淳区</a></li>
+                       
                      </ol>
                   </li>
                   <li class="underline"></li>
@@ -172,7 +169,7 @@
       <div class="windows-buttom">
          {%for item in items %}
          <div class="container2">
-            <a href="index1.html">
+            <a href="url{{Re-sindex}}">
                <div class="container2-1">
                   <img src="" alt="" >
                </div>
@@ -189,7 +186,7 @@
                   
                   <div class="stats">
                      <div class="stat-item">
-                        <div class="score">
+                        <div class="score" id="star-rating">
                            <div class="background"></div>
                            <div class="stars">
                               <div class="star filled"></div>
@@ -201,187 +198,73 @@
                               <div class="star filled"></div>
                               <div class="separator"></div>
                               <div class="star"></div>
-=======
-                        收藏</span></div>
-               </a>
-               </a>
-               <a href="">
-                  <div class="love"><span class="iconfont icon-xihuan"></span><br><span class="tubiao">喜欢</span>
-                  </div>
-               </a>
-               <a href="">
-                  <div class="self-info"><span class="iconfont icon-gerenxinxi"></span><br><span
-                        class="tubiao">个人信息</span>
-                  </div>
-               </a>
-            </div>
-            <div class="center-bank2">
-               <a href="">
-                  <div class="havesaw"><span class="tubiao"><span class="iconfont icon-dianpu"></span><br><span
-                           class="tubiao">看过的店</span></div>
-               </a>
-               <a href="">
-                  <div class="newest"><span class="tubiao"><span class="iconfont icon-tongzhi"></span><br><span
-                           class="tubiao">最新通知</span></div>
-               </a>
-
-
-            </div>
-            <div class="slidesright-buttom">
-               <a href="">
-                  <div class="AI"><br>
-                     <span class="tubiao">AI</span>
-                  </div>
-               </a>
-               <a href="get_user_location">
-                  <div class="map"><span class="iconfont icon-ditu-map"></span>
-                     <br><span class="tubiao">地图</span>
-                  </div>
-               </a>
-
-            </div>
-         </div>
-         <!--第二层导航栏，用于菜品分类  -->
-         <div class="second-kinds">
-            <div class="navba">
-               <div class="nav">
-                  <ul>
-                     <li>
-                        <a href="#">菜品分类</a>
-                        <ol>
-                           <li><a href="#" name="chuan">川菜</a></li>
-                           <li><a href="#" name="beijin">北京菜</a></li>
-                           <li><a href="#" name="dongbei">东北菜</a></li>
-                           <li><a href="#" name="xinjiang">新疆菜</a></li>
-                           <li><a href="#" name="yue">粤菜</a></li>
-                           <li><a href="#" name="lu">鲁菜</a></li>
-                           <li><a href="#" name="qian">黔菜</a></li>
-                           <li><a href="#" name="jianzhe">江浙菜</a></li>
-                        </ol>
-                     </li>
-                     <li>
-                        <a href="#">地区分类</a>
-                        <ol>
-                           <li><a href="#" name="qinghuai">秦淮区</a></li>
-                           <li><a href="#" name="gulou">鼓楼区</a></li>
-                           <li><a href="#" name="xuanwu">玄武区</a></li>
-                           <li><a href="#" name="jianye">建邺区</a></li>
-                           <li><a href="#" name="yuhuatai">雨花台区</a></li>
-                           <li><a href="#" name="xixia">栖霞区</a></li>
-                           <li><a href="#" name="jiangning">江宁区</a></li>
-                           <li><a href="#" name="puko">浦口区</a></li>
-                           <li><a href="#" name="liuhequ">六合区</a></li>
-                           <li><a href="#" name="lishui">溧水区</a></li>
-                           <li><a href="#" name="gaochun">高淳区</a></li>
-                        </ol>
-                     </li>
-                     <li class="underline"></li>
-                  </ul>
-               </div>
-            </div>
-         </div>
-
-         <!-- 菜品采样1 -->
-         <div class="windows-buttom">
-            {% for store in stores %}
-            <div class="container2">
-               <a href="index1.html">
-                  <div class="container2-1">
-                     <img src="" alt="">
-                  </div>
-                  <div class="container2-2">
-                     <a class="name" href="{{ url_for('store_detail', store_id=store['id']) }} name=" gotostore">
-                        <h3 name="storename">{{ store['store_name'] }}</h3>
-                     </a>
-                     <!-- 爱心和收藏 -->
-                     <div class="love-collect">
-                        <span id="icon-a-ziyuan13s" class="iconfont icon-a-ziyuan13s" name="love"></span> <!-- 爱心图标 -->
-                        <span id="" class="iconfont icon-shoucang1" name="collection"></span>
-                     </div>
-
-
-                     <div class="stats">
-                        <div class="stat-item">
-                           <div class="score">
-                              <div class="background"></div>
-                              <div class="stars">
-                                 <div class="star filled"></div>
-                                 <div class="separator"></div>
-                                 <div class="star filled"></div>
-                                 <div class="separator"></div>
-                                 <div class="star filled"></div>
-                                 <div class="separator"></div>
-                                 <div class="star filled"></div>
-                                 <div class="separator"></div>
-                                 <div class="star"></div>
-                              </div>
->>>>>>> origin/main:templates/index.html
                            </div>
                         </div>
-                        <div class="stat-item" id="commentCount">
-                           <p name="commentsnum">2222条评论</p>
-                        </div>
-                        <div class="stat-item" id="averageAmount">
-                           <p name="permoney">人均:222元</p>
-                        </div>
                      </div>
-                     <a class="kinds" href="" name="Food-variety">品类示例</a>
-                     <a class="play" href="" name="storelocation">位置示例</a>
+                     <div class="stat-item" id="commentCount">
+                        <p name="commentsnum">2222条评论</p>
+                     </div>
+                     <div class="stat-item" id="averageAmount">
+                        <p name="permoney">人均:222元</p>
+                     </div>
                   </div>
-               </a>
-            </div>
-            {% endfor %}
+                  <a class="kinds" href="" name="Food-variety">品类示例</a>
+                  <a class="play" href="" name="storelocation">位置示例</a>
+               </div>
+            </a>
          </div>
+         {% endfor %}
       </div>
+   </div>
 
-      <!-- 移动搜索框 -->
-      <div class="windows-search2" id="CCCC">
-         <input class="search1" type="text" name="search" required>
-         <a class="search-btn" href="#" name="searchbutton">
-            <span class="iconfont icon-sousuo"></span>
-         </a>
-      </div>
-      <!-- 右边导航 -->
-      <div class="windows-right" id="slides-right">
-         <ul>
-            <li><a href="">每日推荐</a></li>
+   <!-- 移动搜索框 -->
+   <div class="windows-search2" id="CCCC">
+      <input class="search1" type="text" name="search" required>
+      <a class="search-btn" href="#" name="searchbutton">
+         <span class="iconfont icon-sousuo"></span>
+      </a>
+   </div>
+   <!-- 右边导航 -->
+   <div class="windows-right" id="slides-right">
+      <ul id="menu">
+         <li><a href="">每日推荐</a></li>
 
-            <li id="rightkinds1">
-               <a href="" id="kinds1">全部分类</a><br>
-               <div id="placekinds1">
-                  <p>
-                     <a href="#" name="chuan">川菜</a>
-                     <a href="#" name="beijin">北京菜</a>
-                     <a href="#" name="dongbei">东北菜</a>
-                     <a href="#" name="xinjiang">新疆菜</a>
-                     <a href="#" name="yue">粤菜</a>
-                     <a href="#" name="lu">鲁菜</a>
-                     <a href="#" name="qian">黔菜</a>
-                     <a href="#" name="jianzhe">江浙菜</a>
-                  </p>
-               </div>
-            </li>
-            <li id="rightkinds2">
-               <a href="" id="kinds2">所在地区</a><br>
-               <div id="placekinds2">
-                  <a href="#" name="qinghuai">秦淮区</a>
-                  <a href="#" name="gulou">鼓楼区</a>
-                  <a href="#" name="xuanwu">玄武区</a>
-                  <a href="#" name="jianye">建邺区</a>
-                  <a href="#" name="yuhuatai">雨花台区</a>
-                  <a href="#" name="xixia">栖霞区</a>
-                  <a href="#" name="jiangning">江宁区</a>
-                  <a href="#" name="puko">浦口区</a>
-                  <a href="#" name="liuhequ">六合区</a>
-                  <a href="#" name="lishui">溧水区</a>
-                  <a href="#" name="gaochun">高淳区</a>
-               </div>
-            </li>
-            <li><a href="">其它排序</a></li>
-         </ul>
-      </div>
-      <script src="..\static\index.js"></script>
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+         <li id="rightkinds1">
+            <a href="" id="kinds1">全部分类</a><br>
+            <div id="placekinds1">
+               <p>
+                  <a href="#" name="chuan"class="kind">川菜</a>
+                  <a href="#" name="beijin"class="kind">北京菜</a>
+                  <a href="#" name="dongbei"class="kind">东北菜</a>
+                  <a href="#" name="xinjiang"class="kind">新疆菜</a>
+                  <a href="#" name="yue"class="kind">粤菜</a>
+                  <a href="#" name="lu"class="kind">鲁菜</a>
+                  <a href="#" name="qian"class="kind">黔菜</a>
+                  <a href="#" name="jiangzhe"class="kind">江浙菜</a>
+               </p>
+            </div>
+         </li>
+         <li id="rightkinds2">
+            <a href="" id="kinds2">所在地区</a><br>
+            <div id="placekinds2">
+               <a href="#" name="qinghuai">秦淮区</a>
+               <a href="#" name="gulou">鼓楼区</a>
+               <a href="#" name="xuanwu">玄武区</a>
+               <a href="#" name="jianye">建邺区</a>
+               <a href="#" name="yuhuatai">雨花台区</a>
+               <a href="#" name="xixia">栖霞区</a>
+               <a href="#" name="jiangning">江宁区</a>
+               <a href="#" name="puko">浦口区</a>
+               <a href="#" name="liuhequ">六合区</a>
+               <a href="#" name="lishui">溧水区</a>
+               <a href="#" name="gaochun">高淳区</a>
+            </div>
+         </li>
+         <li><a href="">其它排序</a></li>
+      </ul>
+   </div>
+   <script src="..\static\index.js"></script>
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </body>
 
 </html>
