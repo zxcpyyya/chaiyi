@@ -4,16 +4,22 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录注册页面</title>
+    <title>登录</title>
     <link rel="stylesheet" href="../static/css/stylelogin.css">
 </head>
 
 <body>
 
     <div class="navbar">
+<<<<<<< HEAD:template/login.html
         <a href="user_agreement.html" class="nav-item">用户协议</a>
         <a href="privacy_policy.html" class="nav-item">隐私政策</a>
         <a href="about.html" class="nav-item">帮助中心</a>
+=======
+        <a href="{{url_for('user_agreement')}}" class="nav-item">用户协议</a>
+        <a href="{{url_for('privacy_policy')}}" class="nav-item">隐私政策</a>
+        <a href="{{url_for('about')}}" class="nav-item">帮助中心</a>
+>>>>>>> origin/main:templates/login.html
         <div class="nav-item">
             <span>中文（简体）</span>
         </div>
@@ -22,11 +28,11 @@
     <div class="dowebok">
         <div class="form sign-in">
             <h2>欢迎回来</h2>
-            <form class="password11">
+            <form class="password11" action="/login" method="POST">
                 <input placeholder="用户名" type="text" name="username" required />
                 <input placeholder="密码" type="password" id="password" name="passwd" required />
                 <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
-                <button type="submit" id="submit"class="submit">登 录</button>
+                <button type="submit" id="submit" class="submit">登 录</button>
             </form>
             <p class="forgot-pass"><a href="{{url_for('forget_passwd')}}">忘记密码？</a></p>
         </div>
@@ -36,6 +42,7 @@
                 <div class="img__text m--up">
                     <h2>还未注册？</h2>
                 </div>
+<<<<<<< HEAD:template/login.html
                 <div class="img__text m--in">
                     <h2>已有帐号？</h2>
                 </div>
@@ -54,13 +61,24 @@
                     <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
                     <div>
                         <button type="submit" id="submit"class="submit">注 册</button>
+=======
+
+                <a href="{{url_for('register')}}">
+                    <div class="img__btn">
+                        <span class="m--up">注 册</span>
+>>>>>>> origin/main:templates/login.html
                     </div>
-                </form>
+                </a>
             </div>
         </div>
     </div>
-
     <script src="../static/js/login.js"></script>
+<<<<<<< HEAD:template/login.html
+=======
+    <script>
+
+    </script>
+>>>>>>> origin/main:templates/login.html
 </body>
 
 </html>

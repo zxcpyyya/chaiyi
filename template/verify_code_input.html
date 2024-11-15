@@ -28,10 +28,10 @@
 
 <body>
     <div class="container1">
-        <form class="main">
+        <form class="main" action="/verify_code_input" method="POST">
             <h3>验证码已成功发送</h3><br>
             <h4>请输入验证码</h4>
-            <input id="verify_code" type="text" placeholder="验证码" name="verify_code" required><br>
+            <input id="verify_code" type="text" placeholder="验证码" name="verification_code" required><br>
             
             <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
            
