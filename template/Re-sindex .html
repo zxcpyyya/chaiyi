@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商家界面</title>
+
+    <link rel="stylesheet" href="../static/css/stylebasic.css">
+    <link rel="stylesheet" href="../static/css/res-index.css">
+    <link rel="stylesheet" href="../static/icon/font_1fhiaj3ky6u/iconfont.css">
+</head>
+
+<body>
+    <!-- 搜索框 -->
+    <div class="search-box">
+        <div class="windows-search">
+            <input class="search1" type="text" name="search" required>`
+            <a class="search-btn" href="#" name="searchbutton">
+                <span class="iconfont icon-sousuo"></span>
+            </a>
+        </div>
+    </div>
+    <!-- 店家 -->
+    <div class="res-box">
+        <div class="res-top">
+            <div class="res-top1">
+                <img src="cover1.png" alt=""name="storeimage">
+            </div>
+            <div class="res-top2">
+                <h3 name="storename">店名案例</h3>
+                <p>人均：100元</p>
+                <p>口味：4.7</p>
+                <p>环境：3.5</p>
+                <p>服务：2.1</p>
+                <p>电话：1131313</p>
+                <p>地址：111</p>
+            </div>
+           
+        </div>
+        <div class="res-food">
+            <div class="res-foodtop">推荐</div>
+            <div class="res-food1">
+                {%for item in items %}<div class="foodbox">
+                    <img src="" alt=""><p>菜名示例</p>
+                </div>  {% endfor %}
+            </div>
+            <div class="res-food1">
+                <div class="foodbox">
+                    <img src="" alt="">
+                    <p>菜名示例</p>
+                </div>
+                <div class="foodbox">
+                    <img src="" alt="">
+                    <p>菜名示例</p>
+                </div>
+                <div class="foodbox">
+                    <img src="" alt="">
+                    <p>菜名示例</p>
+                </div>
+                <div class="foodbox">
+                    <img src="" alt="">
+                    <p>菜名示例</p>
+                </div>
+                <div class="foodbox">
+                    <img src="" alt="">
+                    <p>菜名示例</p>
+                </div>
+            </div>
+        </div>
+        <div class="res-Comments">
+        </div>
+    </div>
+</body>
+
+</html>
