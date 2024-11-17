@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心</title>
+    <link rel="stylesheet" href="../static/css/profile.css">
+    <link rel="shortcut icon" href="../static/images/favicon.ico">
+    <link rel="stylesheet" href="../static/icon/font_ql6jb9tc86/iconfont.css">
+
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top">
+        <div class="topleft"><a href="{{ url_for('index') }}">返回主界面</a><span class="iconfont icon-fanhui"></span></div>
+        <!-- 添加用户信息和退出按钮 -->
+        <div class="topright">
+            <span>欢迎您，{{ user.username }}</span>
+            <a href="{{ url_for('logout') }}">退出登录</a>
+        </div>
+    </div>
+
+    <!-- 左侧导航栏 -->
+    <div class="profileleft">
+        <div class="Informa active" id="Informa">账号信息</div>
+        <div class="manage" id="manage">账号管理</div>
+    </div>
+
+    <!-- 账号信息内容区域 -->
+    <div class="container" id="container">
+        <div class="section">
+            <!-- 用户基本信息展示区 -->
+            <div class="sectiontop">
+                <div class="sectiontop1">
+                    <!-- 用户头像 -->
+                    <img src="{{ user.avatar_url or '../static/images/default_avatar.png' }}" alt="用户头像" name="user-img">
+                    <button class="change-avatar">更换头像</button>
+                </div>
+                <!-- 用户详细信息 -->
+                <div class="sectiontop2">
+                    <p><span class="title">用户名：</span>{{ user.username }}</p>
+                    <p><span class="title">邮箱：</span>{{ user.email }}</p>
+                    <!-- 时间显示 -->
+                    <p><span class="title">注册时间：</span>{{ user.registered_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    <p><span class="title">上次登录：</span>{{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    <p><span class="title">个人简介：</span>
+                        <span id="editable-text" class="editable-text">{{ user.bio or '给大家介绍你自己吧' }}</span>
+                        <input id="editable-input" class="editable-input" type="text" value="{{ user.bio or '给大家介绍你自己吧。' }}">
+                        <button id="edit-btn" class="submit-btn">修改</button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 喜欢/收藏切换菜单 -->
+            <div class="menu">
+                <div class="love active" id="love">喜欢</div>
+                <div class="shoucang" id="shoucang">收藏</div>
+            </div>
+
+            <!-- 喜欢的内容展示区 -->
+            <div class="love-box" id="lovebox">
+                <!-- 喜欢的菜品 -->
+                <div class="food">
+                    <h4>菜品</h4>
+                    <div class="fs-box">
+                        {% if liked_foods %}
+                            {% for food in liked_foods %}
+                            <!-- 菜品链接卡片 -->
+                            <a href="{{ url_for('food_detail', food_id=food.id) }}">
+                                <div class="hwbox">
+                                    <div class="food-image">
+                                        <img src="{{ food.image_url }}" alt="{{ food.name }}">
+                                    </div>
+                                    <div class="food-info">
+                                        <p class="food-name">{{ food.name }}</p>
+                                        <p class="food-price">¥{{ food.price }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        {% else %}
+                            <p class="empty-message">还没有喜欢的菜品哦~</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- 喜欢的店家 -->
+                <div class="store">
+                    <h4>店家</h4>
+                    <div class="fs-box">
+                        {% if liked_stores %}
+                            {% for store in liked_stores %}
+                            <!-- 店家链接卡片 -->
+                            <a href="{{ url_for('store_detail', store_id=store.id) }}">
+                                <div class="hwbox">
+                                    <div class="store-image">
+                                        <img src="{{ store.image_url }}" alt="{{ store.name }}">
+                                    </div>
+                                    <div class="store-info">
+                                        <p class="store-name">{{ store.name }}</p>
+                                        <p class="store-rating">评分: {{ store.rating }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        {% else %}
+                            <p class="empty-message">还没有喜欢的店家哦~</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 收藏的内容展示区 -->
+            <div class="shoucang-box" id="shoucangbox" style="display: none;">
+                <!-- 收藏的菜品 -->
+                <div class="food">
+                    <h4>菜品</h4>
+                    <div class="fs-box">
+                        {% if collected_foods %}
+                            {% for food in collected_foods %}
+                            <!-- 菜品链接卡片 -->
+                            <a href="{{ url_for('food_detail', food_id=food.id) }}">
+                                <div class="hwbox">
+                                    <div class="food-image">
+                                        <img src="{{ food.image_url }}" alt="{{ food.name }}">
+                                    </div>
+                                    <div class="food-info">
+                                        <p class="food-name">{{ food.name }}</p>
+                                        <p class="food-price">¥{{ food.price }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        {% else %}
+                            <p class="empty-message">还没有收藏的菜品哦~</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- 收藏的店家 -->
+                <div class="store">
+                    <h4>店家</h4>
+                    <div class="fs-box">
+                        {% if collected_stores %}
+                            {% for store in collected_stores %}
+                            <!-- 店家链接卡片 -->
+                            <a href="{{ url_for('store_detail', store_id=store.id) }}">
+                                <div class="hwbox">
+                                    <div class="store-image">
+                                        <img src="{{ store.image_url }}" alt="{{ store.name }}">
+                                    </div>
+                                    <div class="store-info">
+                                        <p class="store-name">{{ store.name }}</p>
+                                        <p class="store-rating">评分: {{ store.rating }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        {% else %}
+                            <p class="empty-message">还没有收藏的店家哦~</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 账号管理内容区域 -->
+    <div class="container2" id="container2" style="display: none;">
+        <div class="section">
+            <!-- 用户名管理模块 -->
+            <div class="manage-item">
+                <h2>用户名管理</h2>
+                <button type="button" class="submit" onclick="window.location.href='{{ url_for('change_password') }}';">修改用户名</button>
+            </div>
+
+            <!-- 密码管理模块 -->
+            <div class="manage-item">
+                <h2>密码管理</h2>
+                <button type="button" class="submit" onclick="window.location.href='{{ url_for('change_password') }}';">修改密码</button>
+            </div>
+
+            <!-- 邮箱管理模块 -->
+            <div class="manage-item">
+                <h2>邮箱管理</h2>
+                <button type="button" class="submit" onclick="window.location.href='{{ url_for('change_email') }}';">修改邮箱</button>
+            </div>
+
+            <!-- 账户安全模块 -->
+            <div class="manage-item">
+                <h2>账户安全</h2>
+                <div class="login-history">
+                    <p><span class="title">登录历史：</span></p>
+                    <!-- 登录历史记录列表 -->
+                    <ul class="history-list">
+                        {% if login_history %}
+                            {% for history in login_history %}
+                            <li>
+                                <span class="login-time">{{ history.login_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                                <span class="login-ip">IP: {{ history.ip_address }}</span>
+                                <span class="login-device">设备: {{ history.device }}</span>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            <li>暂无登录记录</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入JavaScript文件 -->
+    <script src="../static/js/profile.js"></script>
+</body>
+
+</html>

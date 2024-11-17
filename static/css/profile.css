@@ -18,16 +18,23 @@ a {
 .top {
     height: 40px;
     width: 100%;
-    background-color: yellow;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .topleft {
-    background-color: #2980b9;
+   
     width: 100px;
-    position: relative;
+    position: absolute;
     top: 10px;
+    right: 10px;
 }
-
+.topright{
+    position: relative;
+    left: 10px;
+    top: 10px;
+    width: 300px;
+}
 
 
 
@@ -125,8 +132,9 @@ ul {
 .hwbox {
     height: 200px;
     width: 100px;
-    background-color: yellow;
+    background-color: #eee;
     margin-right: 10px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     /* 垂直排列元素 */
@@ -135,8 +143,8 @@ ul {
 
 .food-image>img,
 .store-image>img {
-    height: 100px;
-    width: 80px;
+    height: 120px;
+    width: 100%;
     position: relative;
     top: 50px;
 }
@@ -214,5 +222,79 @@ ul {
 }
 
 .shoucang-box {
+    display: none;
+}
+
+#editable-text {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+    display: inline-block;
+    width: 300px;
+    margin-right: 10px;
+    word-wrap: break-word;
+}
+
+.editable-input {
+    display: none;
+    width: 300px;
+    height: 30px;
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.editable-input:focus {
+    border-color: #2980b9;
+    box-shadow: 0 0 5px rgba(41, 128, 185, 0.5);
+}
+
+/* 修改按钮 */
+.submit-btn {
+    background-color: #2980b9;
+    color: white;
+    font-size: 16px;
+    padding: 6px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #3498db;
+}
+
+.submit-btn:focus {
+    outline: none;
+}
+
+/* 编辑模式切换动画 */
+#editable-input {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+#editable-text {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#editable-input.show {
+    display: block;
+}
+
+#editable-text.hide {
     display: none;
 }

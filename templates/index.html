@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>菜易 - 美食推荐</title>
+   <link rel="stylesheet" href="..\static\stylebasic.css">
+   <link rel="stylesheet" href="..\static\icon\font_1fhiaj3ky6u/iconfont.css">
+   <link rel="stylesheet" href="..\static\slideshow.css">
+   <link rel="stylesheet" href="..\static\stylebuttom.css">
+   <link rel="stylesheet" href="..\static\styleright.css">
+   <link rel="stylesheet" href="..\static\slidesright.css">
+   <link rel="stylesheet" href="..\static\slidesleft.css">
+   <link rel="stylesheet" href="..\static\second-kinds.css">
+   <link rel="stylesheet" href="..\static\icon\font_x98bnzr5veg/iconfont.css">
+   <link rel="stylesheet" href="..\static\icon\font_ule8xib1t2p/iconfont.css">
+   <link rel="stylesheet" href="..\static\icon\font_k9xko6ryefi/iconfont.css">
+   <!-- 下面这一段css不可以去除 -->
+   <link rel="stylesheet" href="https://g.alicdn.com/thx/cube/1.3.2/cube.min.css">
+   <link rel="stylesheet" href="../static/icon/font_k9xko6ryefi/iconfont.css">
+   <link rel="stylesheet" href="../static/icon/font_ylhoy2e5gzf/iconfont.css">
+   <link rel="stylesheet" href="../static/icon/font_ylhoy2e5gzf/iconfont.css">
+   <link rel="stylesheet" href="../static/icon/font_028jqqasqiiz/iconfont.css">
+   <link rel="stylesheet" href="../static/icon/font_c6kgeuys0m8/iconfont.css">
+   <link rel="stylesheet" href="../static/icon/font_u050ybgg8r/iconfont.css">
+   <script>
+      function checkLogin(event) {
+         {% if not session.username %}
+            event.preventDefault();
+            window.location.href = "{{ url_for('login') }}";
+            return false;
+         {% endif %}
+         return true;
+      }
+   </script>
+</head>
+
+<body>
+   <!-- 上部分 -->
+   <!-- 顶部导航栏 -->
+   <div class="windows-top1">
+      <a href="{{url_for('login')}}">登录</a>
+      <a href="{{url_for('login')}}">注册</a>
+      <a href="{{url_for('notications')}}" onclick="return checkLogin(event)">消息通知</a>
+      <a href="{{url_for('profile')}}" onclick="return checkLogin(event)">个人中心</a>
+      <a href="{{url_for('help')}}" onclick="return checkLogin(event)">帮助</a>
+   </div>
+
+
+   <!-- 除了导航栏外其它内容 -->
+   <div class="container1">
+      <!-- 搜索框 -->
+      <div class="windows-search">
+         <input class="search1" type="text" name="search" required>`
+         <a class="search-btn" href="#" name="searchbutton" onclick="return checkLogin(event)">
+            <span class="iconfont icon-sousuo"></span>
+         </a>
+      </div>
+
+      <!-- 轮播图区域 -->
+      <div class="windows-top3">
+         <!-- 轮播图左侧 -->
+         <div class="slides-left">
+            <div class="slides-left-top">
+               <img src="../static/img/111111.png" alt="" id="cookedman">
+               <div class="word" id="word"></div>
+            </div>
+            <div class="slides-left-buttom">
+               <a href="{{url_for('everydaylove')}}" onclick="return checkLogin(event)">
+                  <div class="everydaylove">
+                     <div class="redtip"></div>每日推荐<span class="iconfont icon-jinru"></span>
+                  </div>
+               </a>
+            </div>
+         </div>
+         <!--轮播图  -->
+         <div class="slideshow-center">
+            <div class="shell">
+               <div class="content">
+                  <div class="item"><img name="slidesimg1" src="" alt=""></div>
+                  <div class="item"><img name="slidesimg2" src="" alt=""></div>
+                  <div class="item"><img name="slidesimg3" src="" alt=""></div>
+               </div>
+               <div class="arrowr left">◀</div>
+               <div class="arrowr right">▶</div>
+            </div>
+         </div>
+         <!-- 轮播图右侧 -->
+         <div class="slides-right">
+
+            <div class="user">
+               <a href="" onclick="return checkLogin(event)">
+                  <div class="user-image"><img src="" alt="" name="user-image"></div>
+               </a>
+               <div class="user-Inf">你好！<br>
+                  <p name="username">{{ user.username }}</p>
+               </div>
+            </div>
+            <div class="center-bank1">
+               <a href="{{ url_for('profile') }}" onclick="return checkLogin(event)">
+                  <div class="collect"><span class="iconfont icon-shoucang"></span><br>
+                     <div class="redtip1"></div>
+                     <span class="tubiao">
+                        收藏</span></div>
+               </a>
+               </a>
+               <a href="{{url_for('profile')}}" onclick="return checkLogin(event)">
+                  <div class="love"><span class="iconfont icon-xihuan"></span><br>
+                     <div class="redtip2"></div>
+                     <span class="tubiao">喜欢</span>
+                  </div>
+               </a>
+               <a href="{{ url_for('profile') }}" onclick="return checkLogin(event)">
+                  <div class="self-info"><span class="iconfont icon-gerenxinxi"></span><br><span
+                        class="tubiao">个人信息</span>
+                  </div>
+               </a>
+            </div>
+            <div class="center-bank2">
+               <a href="" onclick="return checkLogin(event)">
+                  <div class="havesaw"><span class="tubiao"><span class="iconfont icon-dianpu"></span><br><span
+                           class="tubiao">看过的店</span></div>
+               </a>
+               <a href="" onclick="return checkLogin(event)">
+                  <div class="newest"><span class="tubiao"><span class="iconfont icon-tongzhi"></span><br><span
+                           class="tubiao">最新通知</span></div>
+               </a>
+
+
+            </div>
+            <div class="slidesright-buttom">
+               <a href="" onclick="return checkLogin(event)">
+                  <div class="AI"><br>
+                     <span class="iconfont icon-caidan"></span><br>
+                     <span class="tubiao">个性菜单</span>
+                  </div>
+               </a>
+               <a href="" onclick="return checkLogin(event)">
+                  <div class="map"><span class="iconfont icon-ditu-map"></span><br><span class="tubiao">地图</span>
+                  </div>
+               </a>
+
+            </div>
+         </div>
+         <!--第二层导航栏，用于菜品分类  -->
+         <div class="second-kinds">
+            <div class="navba">
+               <div class="nav">
+                  <ul id="menu">
+                     <li>
+                        <a>菜品分类</a>
+                        <ol>
+                           <li><a name="chuan" class="kind" onclick="return checkLogin(event)">川菜</a></li>
+                           <li><a name="beijin" class="kind" onclick="return checkLogin(event)">北京菜</a></li>
+                           <li><a name="dongbei" class="kind" onclick="return checkLogin(event)">东北菜</a></li>
+                           <li><a name="xinjiang" class="kind" onclick="return checkLogin(event)">新疆菜</a></li>
+                           <li><a name="yue" class="kind" onclick="return checkLogin(event)">粤菜</a></li>
+                           <li><a name="lu" class="kind" onclick="return checkLogin(event)">鲁菜</a></li>
+                           <li><a name="qian" class="kind" onclick="return checkLogin(event)">黔菜</a></li>
+                           <li><a name="jiangzhe" class="kind" onclick="return checkLogin(event)">江浙菜</a></li>
+
+                        </ol>
+                     </li>
+                     <li>
+                        <a href="#">地区分类</a>
+                        <ol>
+                           <li><a href="" name="qinghuai" onclick="return checkLogin(event)">秦淮区</a></li>
+                           <li><a href="" name="gulou" onclick="return checkLogin(event)">鼓楼区</a></li>
+                           <li><a href="" name="xuanwu" onclick="return checkLogin(event)">玄武区</a></li>
+                           <li><a href="" name="jianye" onclick="return checkLogin(event)">建邺区</a></li>
+                           <li><a href="" name="yuhuatai" onclick="return checkLogin(event)">雨花台区</a></li>
+                           <li><a href="" name="xixia" onclick="return checkLogin(event)">栖霞区</a></li>
+                           <li><a href="" name="jiangning" onclick="return checkLogin(event)">江宁区</a></li>
+                           <li><a href="" name="puko" onclick="return checkLogin(event)">浦口区</a></li>
+                           <li><a href="" name="liuhequ" onclick="return checkLogin(event)">六合区</a></li>
+                           <li><a href="" name="lishui" onclick="return checkLogin(event)">溧水区</a></li>
+                           <li><a href="" name="gaochun" onclick="return checkLogin(event)">高淳区</a></li>
+
+                        </ol>
+                     </li>
+                     <li class="underline"></li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+
+         <!-- 菜品采样1 -->
+         <div class="windows-buttom" id="store-list">
+            <!-- 这里将由AJAX动态填充内容 -->
+         </div>
+      </div>
+
+      <!-- 移动搜索框 -->
+      <div class="windows-search2" id="CCCC">
+         <input class="search1" type="text" name="search" required>
+         <a class="search-btn" href="#" name="searchbutton" onclick="return checkLogin(event)">
+            <span class="iconfont icon-sousuo"></span>
+         </a>
+      </div>
+      <!-- 右边导航 -->
+      <div class="windows-right" id="slides-right">
+         <ul id="menu">
+            <li><a href="" onclick="return checkLogin(event)">每日推荐</a></li>
+
+            <li id="rightkinds1">
+               <a href="" id="kinds1">全部分类</a><br>
+               <div id="placekinds1">
+                  <p>
+                     <a href="#" name="chuan" class="kind" onclick="return checkLogin(event)">川菜</a>
+                     <a href="#" name="beijin" class="kind" onclick="return checkLogin(event)">北京菜</a>
+                     <a href="#" name="dongbei" class="kind" onclick="return checkLogin(event)">东北菜</a>
+                     <a href="#" name="xinjiang" class="kind" onclick="return checkLogin(event)">新疆菜</a>
+                     <a href="#" name="yue" class="kind" onclick="return checkLogin(event)">粤菜</a>
+                     <a href="#" name="lu" class="kind" onclick="return checkLogin(event)">鲁菜</a>
+                     <a href="#" name="qian" class="kind" onclick="return checkLogin(event)">黔菜</a>
+                     <a href="#" name="jiangzhe" class="kind" onclick="return checkLogin(event)">江浙菜</a>
+                  </p>
+               </div>
+            </li>
+            <li id="rightkinds2">
+               <a href="" id="kinds2">所在地区</a><br>
+               <div id="placekinds2">
+                  <a href="#" name="qinghuai" onclick="return checkLogin(event)">秦淮区</a>
+                  <a href="#" name="gulou" onclick="return checkLogin(event)">鼓楼区</a>
+                  <a href="#" name="xuanwu" onclick="return checkLogin(event)">玄武区</a>
+                  <a href="#" name="jianye" onclick="return checkLogin(event)">建邺区</a>
+                  <a href="#" name="yuhuatai" onclick="return checkLogin(event)">雨花台区</a>
+                  <a href="#" name="xixia" onclick="return checkLogin(event)">栖霞区</a>
+                  <a href="#" name="jiangning" onclick="return checkLogin(event)">江宁区</a>
+                  <a href="#" name="puko" onclick="return checkLogin(event)">浦口区</a>
+                  <a href="#" name="liuhequ" onclick="return checkLogin(event)">六合区</a>
+                  <a href="#" name="lishui" onclick="return checkLogin(event)">溧水区</a>
+                  <a href="#" name="gaochun" onclick="return checkLogin(event)">高淳区</a>
+               </div>
+            </li>
+            <li><a href="" onclick="return checkLogin(event)">其它排序</a></li>
+         </ul>
+      </div>
+      <script src="..\static\index.js"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script>
+         $(document).ready(function () {
+            // 当点击分类时触发
+            $(".kind").click(function (event) {
+               if(!checkLogin(event)) {
+                  return false;
+               }
+               
+               var categoryName = $(this).text();
+               var categoryId = getCategoryId(categoryName);
+               if (categoryId) {
+                  $.ajax({
+                     url: '/get_stores_by_category',
+                     method: 'GET',
+                     data: {
+                        category_id: categoryId
+                     },
+                     success: function (response) {
+                        // 清空之前的商店列表
+                        $('#store-list').empty();
+
+                        // 遍历返回的商店列表并展示
+                        response.stores.forEach(function (store) {
+                           var starsHtml = '';
+                           var rating = Math.floor(store.rating);
+                           
+                           // 生成星星HTML
+                           for (var i = 0; i < rating; i++) {
+                              starsHtml += '<div class="star filled"></div>';
+                              if (i < rating - 1) {
+                                 starsHtml += '<div class="separator"></div>';
+                              }
+                           }
+                           for (var i = rating; i < 5; i++) {
+                              if (i > rating) {
+                                 starsHtml += '<div class="separator"></div>';
+                              }
+                              starsHtml += '<div class="star"></div>';
+                           }
+
+                           var storeHtml = `
+                              <div class="container2">
+                                 <div class="container2-1">
+                                    <img src="${store.image_url}" alt="${store.name}">
+                                 </div>
+                                 <div class="container2-2">
+                                    <a class="name" href="/store/${store.id}" name="gotostore" onclick="return checkLogin(event)">
+                                       <h3 name="storename">${store.name}</h3>
+                                    </a>
+                                    <div class="love-collect">
+                                       <span class="iconfont icon-a-ziyuan13s" name="love" onclick="return checkLogin(event)"></span>
+                                       <span class="iconfont icon-shoucang1" name="collection" onclick="return checkLogin(event)"></span>
+                                    </div>
+                                    <div class="stats">
+                                       <div class="stat-item">
+                                          <div class="score" id="star-rating">
+                                             <div class="background"></div>
+                                             <div class="stars">
+                                                ${starsHtml}
+                                             </div>
+                                          </div>
+                                          <div class="price">人均: ¥${store.permoney}</div>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           `;
+                           $('#store-list').append(storeHtml);
+                        });
+                     },
+                     error: function (error) {
+                        console.log("请求失败:", error);
+                     }
+                  });
+               }
+            });
+
+            function getCategoryId(categoryName) {
+               var categories = {
+                  "川菜": 1,
+                  "北京菜": 2,
+                  "东北菜": 3,
+                  "新疆菜": 4,
+                  "粤菜": 5,
+                  "鲁菜": 6,
+                  "黔菜": 7,
+                  "江浙菜": 8
+               };
+               return categories[categoryName] || null;
+            }
+         });
+      </script>
+</body>
+
+</html>
+      </script>
+</body>
+
+</html>

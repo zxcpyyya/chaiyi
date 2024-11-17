@@ -161,8 +161,8 @@ document.getElementById('menu').addEventListener('click', function(event) {
         case 'lu':
           contentDiv.innerHTML = '鲁';
           break;
-        case 'qian':
-          contentDiv.innerHTML = '黔';
+        case 'xiang':
+          contentDiv.innerHTML = '湘';
           break;
         case 'jiangzhe':
           contentDiv.innerHTML = '江浙';

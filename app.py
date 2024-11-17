@@ -22,6 +22,7 @@ import uuid
 import json
 import mysql.connector
 from mysql.connector import Error as MySQLError
+from mysql.connector import pooling
 from cryptography.fernet import Fernet
 
 # 导入配置类
@@ -52,6 +53,22 @@ redis_client = redis.StrictRedis.from_url(app.config["REDIS_URL"])
 
 encryption_key = os.getenv("ENCRYPTION_KEY", Fernet.generate_key().decode())
 cipher_suite = Fernet(encryption_key)
+
+# 数据库连接池配置
+dbconfig = {
+    "host": app.config["MYSQL_HOST"],
+    "user": app.config["MYSQL_USER"],
+    "password": app.config["MYSQL_PASSWORD"],
+    "database": app.config["MYSQL_DB"],
+    "auth_plugin": "mysql_native_password"
+}
+
+# 创建连接池
+connection_pool = mysql.connector.pooling.MySQLConnectionPool(
+    pool_name="mypool",
+    pool_size=5,
+    **dbconfig
+)
 
 
 def encrypt_data(data):
@@ -189,12 +206,38 @@ def init_db():
 >>>>>>> origin/main
     );
     """
+    create_categories_sql = """
+    CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 菜系ID
+        name VARCHAR(255) NOT NULL UNIQUE -- 菜系名称
+    );
+    """
+    create_region_sql = """
+    CREATE TABLE IF NOT EXISTS regions (
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 地区ID
+        name VARCHAR(255) NOT NULL UNIQUE -- 地区名称
+    );
+    """
+    create_stores_sql = """
+    CREATE TABLE IF NOT EXISTS stores (
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 商店ID
+        store_name VARCHAR(255) NOT NULL UNIQUE, -- 商店名称，唯一
+        store_image TEXT, -- 图片链接
+        permoney INT NOT NULL, -- 人均消费
+        commentsnum INT NOT NULL, -- 评论数量
+        address TEXT, -- 商店地址
+        business_hours TEXT, -- 营业时间
+        rating DECIMAL(3, 2), -- 商店评分
+        region_id INT, -- 关联地区ID
+        FOREIGN KEY (region_id) REFERENCES regions(id)
+    );
+    """
     create_dishes_sql = """
     CREATE TABLE IF NOT EXISTS dishes(
-        id INT AUTO_INCREMENT PRIMARY KEY, -- 自增主键
+        id INT AUTO_INCREMENT PRIMARY KEY, -- 菜品ID
         dishes_name VARCHAR(255) NOT NULL UNIQUE, -- 菜品名称，唯一
         score INT NOT NULL, -- 菜品评分
-        category VARCHAR(255) NOT NULL, -- 菜品分类
+        category_id INT, -- 关联菜系ID
         description TEXT NOT NULL, -- 菜品描述
         price DECIMAL(10, 2) NOT NULL, -- 菜品价格
         image_url TEXT, -- 菜品图片链接
@@ -205,20 +248,10 @@ def init_db():
 =======
 >>>>>>> origin/main
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间，更新时自动更新
-        deleted_at TIMESTAMP NULL DEFAULT NULL -- 删除时间，软删除
-    );
-    """
-    create_stores_sql = """
-    CREATE TABLE IF NOT EXISTS stores(
-        id INT AUTO_INCREMENT PRIMARY KEY, -- 自增主键
-        store_name VARCHAR(255) NOT NULL UNIQUE, -- 商店名称，唯一
-        permoney INT NOT NULL, -- 人均消费
-        commentsnum INT NOT NULL, -- 评论数量
-        description TEXT NOT NULL, -- 商店描述
-        love INT NOT NULL, -- 点赞数量
-        address TEXT, -- 商店地址
-        business_hours TEXT, -- 营业时间
-        rating DECIMAL(3, 2) -- 商店评分
+        deleted_at TIMESTAMP NULL DEFAULT NULL, -- 删除时间，软删除
+        store_id INT, -- 关联商店ID
+        FOREIGN KEY (category_id) REFERENCES categories(id),
+        FOREIGN KEY (store_id) REFERENCES stores(id)
     );
     """
     create_reviews_sql = """
@@ -274,21 +307,24 @@ def init_db():
     );
     """
     try:
+<<<<<<< HEAD
+        conn = connection_pool.get_connection()
+=======
         conn = mysql.connector.connect(
             host=app.config["MYSQL_HOST"],
             user=app.config["MYSQL_USER"],
             password=app.config["MYSQL_PASSWORD"],
             database=app.config["MYSQL_DB"],
-<<<<<<< HEAD
-=======
             auth_plugin="mysql_native_password",
->>>>>>> origin/main
         )
+>>>>>>> origin/main
         cursor = conn.cursor()
         cursor.execute(create_users_sql)
         cursor.execute(create_login_history_sql)
-        cursor.execute(create_dishes_sql)
+        cursor.execute(create_categories_sql)
+        cursor.execute(create_region_sql)
         cursor.execute(create_stores_sql)
+        cursor.execute(create_dishes_sql)
         cursor.execute(create_reviews_sql)
         cursor.execute(create_favorites_sql)
 <<<<<<< HEAD
@@ -308,13 +344,7 @@ def init_db():
 
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(
-            host=app.config["MYSQL_HOST"],
-            user=app.config["MYSQL_USER"],
-            password=app.config["MYSQL_PASSWORD"],
-            database=app.config["MYSQL_DB"],
-            auth_plugin="mysql_native_password",
-        )
+        conn = connection_pool.get_connection()
         print("数据库连接成功")
         return conn
     except MySQLError as e:
@@ -347,7 +377,7 @@ def register():
                 cursor.execute(
                     """
                     INSERT INTO users (username, passwd, email) VALUES (%s, %s, %s)
-                    """,
+                    """,                                                                                                                                                                                                                                                                                                                           
                     (username, hashed_passwd, email),
                 )
                 conn.commit()
@@ -863,12 +893,8 @@ def about():
     return render_template("about.html")
 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/main
 if __name__ == "__main__":
-    # 初始化数据库
     init_db()
     # 启动应用
     app.run(debug=True)

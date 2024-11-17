@@ -7,6 +7,7 @@
     <title>商家界面</title>
     <link rel="stylesheet" href="../static/css/res-index.css">
     <link rel="stylesheet" href="../static/icon/font_1fhiaj3ky6u/iconfont.css">
+    <link rel="stylesheet" href="../static/icon/font_ql6jb9tc86/iconfont.css">
 
     <style>
 
@@ -22,6 +23,7 @@
                 <span class="iconfont icon-sousuo"></span>
             </a>
         </div>
+        <div class="topleft"><a href="{{ url_for('index') }}">返回主界面</a><span class="iconfont icon-fanhui"></span></div>
     </div>
 
     <!-- 商家信息 -->
@@ -29,7 +31,7 @@
         <!-- 店家信息 -->
         <div class="res-top">
             <div class="res-top1">
-                <img src="cover1.png"  name="storeimage">
+                <img src=""  name="storeimage">
             </div>
             <div class="res-top2">
                 <h3 name="storename">店名案例</h3>
@@ -48,7 +50,7 @@
             <div class="res-food1">
                 {% for item in items %}
                 <div class="foodbox">
-                    <img src="cover1.png" alt="{{ item.name }}">
+                    <img src="" alt="{{ item.name }}">
                     <p>{{ item.name }}</p>
                 </div>
                 {% endfor %}
@@ -60,6 +62,7 @@
             <div class="res-Comments-button">
                 <textarea id="Comments" placeholder="请输入评论..." rows="4"></textarea>
                 <button type="submit" id="submitBtn" disabled>评论</button>
+                <button type="button" id="submitBtn1">评论</button>
             </div>
 
             <div class="res-Comments-other">
@@ -82,7 +85,7 @@
         </div>
     </div>
 
-    <script src="re-sindex.js"></script>
+    <script src="../static/js/re-sindex.js"></script>
 </body>
 
 </html>
