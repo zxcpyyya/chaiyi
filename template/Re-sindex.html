@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商家界面</title>
+    <link rel="stylesheet" href="../static/css/res-index.css">
+    <link rel="stylesheet" href="../static/icon/font_1fhiaj3ky6u/iconfont.css">
+
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <!-- 搜索框 -->
+    <div class="search-box">
+        <div class="windows-search">
+            <input class="search1" type="text" name="search" required>
+            <a class="search-btn" href="#" name="searchbutton">
+                <span class="iconfont icon-sousuo"></span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 商家信息 -->
+    <div class="res-box">
+        <!-- 店家信息 -->
+        <div class="res-top">
+            <div class="res-top1">
+                <img src="cover1.png"  name="storeimage">
+            </div>
+            <div class="res-top2">
+                <h3 name="storename">店名案例</h3>
+                <p name="permoney">人均：100元</p>
+                <p>口味：4.7</p>
+                <p>环境：3.5</p>
+                <p>服务：2.1</p>
+                <p>电话：1131313</p>
+                <p name="storelocation">地址：111</p>
+            </div>
+        </div>
+
+        <!-- 推荐菜品 -->
+        <div class="res-food">
+            <div class="res-foodtop">推荐菜品</div>
+            <div class="res-food1">
+                {% for item in items %}
+                <div class="foodbox">
+                    <img src="cover1.png" alt="{{ item.name }}">
+                    <p>{{ item.name }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 评论区 -->
+        <div class="res-Comments">
+            <div class="res-Comments-button">
+                <textarea id="Comments" placeholder="请输入评论..." rows="4"></textarea>
+                <button type="submit" id="submitBtn" disabled>评论</button>
+            </div>
+
+            <div class="res-Comments-other">
+                {% for item in comments %}
+                <div class="user-comments1">
+                    <div class="user-image-left">
+                        <img src="cover1.png" alt="用户头像">
+                    </div>
+                    <div class="user-comment-right">
+                        <h3 class="comment-name"name="username">{{ item.username }}</h3>
+                        <p class="comment-time"name="comment-time">{{ item.comment_time }}</p>
+                        <p>评分：{{ item.rating }}</p>
+                        <div class="commentlength">
+                            <p name="comment">{{ item.comment }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script src="re-sindex.js"></script>
+</body>
+
+</html>

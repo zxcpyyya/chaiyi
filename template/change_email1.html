@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改邮箱</title>
+    <link rel="stylesheet" href="..\static\css\change.css">
+    <link rel="stylesheet" href="..\static\css\styleforget.css">
+</head>
+<body>
+    <div class="container1">
+        <div class="main">
+            <span>
+                <p>请输入你修改后的邮箱:</p>
+            </span>
+            <form action="/change_email1"method="POST">
+                <div class="passwords">
+                    <input type="email" id="email" placeholder="输入你的新邮箱" name="email" required />
+                </div>
+                <div class="error">{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}</div>
+                <button type="submit" id="submit"><a href="{{ url_for('profile') }}">确定</a></button>
+        </div>
+    </div>
+</body>
+</html>
