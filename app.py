@@ -893,7 +893,17 @@ def about():
     return render_template("about.html")
 
 
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
+>>>>>>> origin/main
+>>>>>>> origin/main
 if __name__ == "__main__":
     init_db()
     # 启动应用
